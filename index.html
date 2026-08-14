@@ -6,20 +6,20 @@
   <title>Fluentic | The business that never stops.</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240' fill='%230A0A0A'%3E%3Cpolygon points='62,28 222,28 200,102 40,102'/%3E%3Cpolygon points='75,132 180,132 158,206 53,206'/%3E%3C/svg%3E" media="(prefers-color-scheme: light)">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240' fill='%23F5F2EB'%3E%3Cpolygon points='62,28 222,28 200,102 40,102'/%3E%3Cpolygon points='75,132 180,132 158,206 53,206'/%3E%3C/svg%3E" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="Fluentic engineers, deploys, and runs fleets of AI agents inside your operations — quoting, procurement, inventory, support. A 30-minute OEM lookup, run in 30 seconds. Automotive first.">
+  <meta name="description" content="Fluentic builds, deploys, and runs AI agents inside your operations. Quoting, procurement, inventory, support, finance: the manual work runs itself. Every engagement starts with a paid audit.">
   <link rel="canonical" href="https://befluentic.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Fluentic">
   <meta property="og:url" content="https://befluentic.com/">
-  <meta property="og:title" content="Fluentic — Work that runs itself.">
-  <meta property="og:description" content="An autonomous workforce for your operations. We engineer, deploy, and run AI agents inside your core. A 30-minute OEM lookup, run in 30 seconds.">
+  <meta property="og:title" content="Fluentic | The business that never stops.">
+  <meta property="og:description" content="AI agents that run your operations. We build them, deploy them, and run them inside your business: quoting, procurement, inventory, support, finance. Every engagement starts with a paid audit.">
   <meta property="og:image" content="https://befluentic.com/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Fluentic — work that runs itself.">
+  <meta property="og:image:alt" content="Fluentic. The business that never stops.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Fluentic — Work that runs itself.">
-  <meta name="twitter:description" content="An autonomous workforce for your operations. A 30-minute OEM lookup, run in 30 seconds.">
+  <meta name="twitter:title" content="Fluentic | The business that never stops.">
+  <meta name="twitter:description" content="AI agents that run your operations. We build, deploy, and run the agents. It starts with a paid audit.">
   <meta name="twitter:image" content="https://befluentic.com/og.png">
   <meta name="twitter:site" content="@befluentic">
   <!-- Analytics — Vercel Web Analytics (free, cookieless). Turn it on in the project's Analytics tab; this script serves automatically once enabled. -->
@@ -115,6 +115,7 @@
     .metric-tag--ghost{visibility:hidden}
     .metric-val{font-size:clamp(1.75rem,3vw,2.5rem);font-weight:500;letter-spacing:-.04em;line-height:1;margin-top:.5rem}
     .metric-label{font-family:var(--m);font-size:.5625rem;text-transform:uppercase;letter-spacing:.18em;color:var(--bone-40);margin-top:.55rem;max-width:160px}
+    .metrics-note{font-family:var(--m);font-size:.5625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-40);text-align:right;padding:.6rem 2rem .55rem;border-bottom:1px solid var(--bone-06)}
 
     /* ═══ SECTION ═══ */
     .sec{padding:clamp(5rem,9vw,8rem) var(--px)}
@@ -244,6 +245,7 @@
       .split{grid-template-columns:1fr}
       .split-l{border-right:none;border-bottom:1px solid var(--bone-06)}
       .process-grid{grid-template-columns:1fr 1fr}
+      .engage-grid{grid-template-columns:1fr 1fr}
       .service-row{grid-template-columns:48px 1fr;gap:1rem 1.25rem}
       .service-desc{grid-column:2;padding-top:0}
       .work-card{grid-template-columns:1fr}
@@ -257,6 +259,7 @@
       .hero-status{white-space:normal;line-height:1.55}
       .hero-services{display:none}
       .process-grid{grid-template-columns:1fr}
+      .engage-grid{grid-template-columns:1fr}
       .footer-grid{flex-direction:column}
     }
 
@@ -294,6 +297,8 @@
     .alead h2{font-weight:500;font-size:clamp(2.4rem,4.8vw,3.9rem);line-height:.95;letter-spacing:-.035em;max-width:700px;margin-bottom:.5rem}
     .twocol{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,4rem);align-items:start;margin-top:2rem}
     .twocol p{font-size:.95rem;line-height:1.75;color:var(--bone-60)}
+    .twocol.twocol-single{grid-template-columns:1fr}
+    .twocol.twocol-single p{max-width:640px}
     /* VALUES */
     .beliefs{background:var(--bone);color:var(--ink);border-top:1px solid var(--bone-06)}
     .beliefs-head{padding:clamp(5rem,9vw,8rem) var(--px) 1.5rem}
@@ -424,6 +429,11 @@
     .process-step:hover::before{width:100%}
     .process-step{transition:background .25s ease}
     .process-step:hover{background:#ECE7DB}
+    .engage{background:var(--bone);color:var(--ink);padding:clamp(5rem,9vw,8rem) var(--px);border-top:1px solid var(--bone-06)}
+    .engage-head{max-width:720px;margin-bottom:2.5rem}
+    .engage-head .ey{display:block;margin-bottom:1.25rem}
+    .engage-head h2{font-weight:500;font-size:clamp(2.05rem,4vw,3.1rem);line-height:1;letter-spacing:-.03em;color:var(--ink)}
+    .engage-grid{grid-template-columns:repeat(3,1fr)}
     .process-bignum{transition:color .25s ease,transform .45s ease}
     .process-step:hover .process-bignum{color:rgba(10,10,10,.09);transform:translateY(.4rem)}
 
@@ -470,6 +480,7 @@
     .rc-modal-x:hover{color:var(--bone)}
     @media(prefers-reduced-motion:reduce){.rc-modal-panel{animation:none}}
     /* ═══ PROOF STRIP ═══ */
+    /* DORMANT — proof band removed from markup 2026-08-14, keep for one-paste restore */
     .proof{background:var(--ink);color:var(--bone);padding:clamp(3.5rem,7vw,6rem) var(--px);border-top:1px solid var(--bone-12);border-bottom:1px solid var(--bone-12)}
     .proof-kick{font-family:var(--m);font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--bone-40);display:block;margin-bottom:1.4rem}
     .proof-h{font-weight:500;font-size:clamp(1.9rem,4vw,3rem);line-height:1.03;letter-spacing:-.035em;max-width:780px;margin:0 0 2.6rem}
@@ -478,7 +489,6 @@
     .proof-stat .pk{font-family:var(--m);font-size:.5625rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-40);margin-top:.7rem;display:block;max-width:150px}
     .proof-sub{color:var(--bone-60);font-size:.95rem;line-height:1.65;max-width:640px;margin:2.2rem 0 0}
     /* ═══ PRIVACY MODAL + FORM STATES ═══ */
-    #privacyModal{z-index:500}
     .pv-ey{font-family:var(--m);font-size:.625rem;letter-spacing:.28em;text-transform:uppercase;color:var(--bone-40);display:block}
     .pv-h{font-weight:500;font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.03em;margin:.55rem 0 1.2rem;color:var(--bone);line-height:1.05}
     .pv-body p{font-size:.875rem;line-height:1.6;color:var(--bone-60);margin:0 0 1rem}
@@ -488,9 +498,6 @@
     .form-fine{font-size:.75rem;line-height:1.5;color:rgba(10,10,10,.55);margin:1rem 0 0}
     .form-fine a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
     .form-fine a:hover{color:rgba(10,10,10,.65)}
-    .rc-fine{font-size:.72rem;line-height:1.5;color:var(--bone-40);margin:.85rem 0 0}
-    .rc-fine a{color:var(--bone-60);text-decoration:underline;text-underline-offset:2px}
-    .rc-fine a:hover{color:var(--bone)}
     .cform-done{padding:1.5rem 0}
     .cform-done-l{display:block;margin-bottom:.7rem;font-family:var(--m);font-size:.625rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(10,10,10,.5)}
     .cform-done p{font-size:1.05rem;line-height:1.55;color:var(--ink);margin:0;max-width:380px}
@@ -523,11 +530,16 @@
     .rc-diag{font-size:.98rem;line-height:1.5;color:var(--bone);margin:0 0 .9rem}
     .rc-ops{font-size:.88rem;line-height:1.6;color:var(--bone-60);margin:0 0 1.5rem}
     .rc-ops b{color:var(--bone);font-weight:500}
+    .rc-ladder{font-size:.8125rem;color:var(--bone-60);border-top:1px solid var(--bone-06);padding-top:.9rem}
     .rc-cta{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
     .rc-restart{font-family:var(--m);font-size:.5625rem;text-transform:uppercase;letter-spacing:.16em;color:var(--bone-40);background:none;border:none;cursor:pointer;transition:color .2s ease}
     .rc-restart:hover{color:var(--bone)}
     .rc-note{font-size:.92rem;line-height:1.55;color:var(--bone-60);margin:0 0 1.25rem;max-width:440px}
     .rc-email{display:flex;gap:.6rem;flex-wrap:wrap}
+    .rc-email.rc-email-col{flex-direction:column;align-items:stretch;gap:.7rem}
+    .rc-disclosure{font-size:.75rem;line-height:1.6;color:var(--bone-60);margin:0}
+    .rc-disclosure a{color:var(--bone);text-decoration:underline;text-underline-offset:2px}
+    .rc-disclosure a:hover{color:var(--bone-80)}
     .rc-input{flex:1;min-width:200px;background:var(--ink);border:1px solid var(--bone-12);color:var(--bone);font-family:var(--f);font-size:.9rem;padding:.85rem 1rem;min-height:52px}
     .rc-input::placeholder{color:var(--bone-40)}
     .rc-input:focus{outline:none;border-color:var(--bone-40)}
@@ -753,18 +765,15 @@
     <span class="metric-label">Operational cost reduced</span>
   </div>
 </div>
+<div class="metrics-note">Figures from live deployments</div>
 
-<!-- ═══ PROOF ═══ -->
-<section class="proof">
-  <span class="proof-kick">Shipped &middot; Lisi G &middot; Prishtinë &middot; Automotive</span>
-  <h2 class="proof-h">A 30-minute OEM lookup, run in 30&nbsp;seconds.</h2>
-  <div class="proof-row">
-    <div class="proof-stat"><span class="pn">30 s</span><span class="pk">Per lookup, from 30 min by hand</span></div>
-    <div class="proof-stat"><span class="pn">60&times;</span><span class="pk">Faster than manual</span></div>
-    <div class="proof-stat"><span class="pn">3</span><span class="pk">Sources reconciled live</span></div>
-  </div>
-  <p class="proof-sub">The OEM Lookup pipeline cross-references Partslink24, TecDoc, and your ERP for the right part. The chain a parts desk used to run by hand, now executed autonomously every time an order lands.</p>
-</section>
+<!-- PROOF BAND REMOVED 2026-08-14 (Ardi's call). It sat exactly here, between the
+     metrics strip above and THE SHIFT below. CSS (.proof, .proof-kick, .proof-h,
+     .proof-row, .proof-stat, .proof-sub) is left dormant in the stylesheet, same
+     pattern as the case-studies section: to restore, paste the <section class="proof">
+     markup back at this position. Last content: Lisi G / Gjakove kicker, "A 30-minute
+     OEM lookup, run in 30 seconds.", 30s / 60x / 3-sources stat row, Partslink24+TecDoc
+     body line. -->
 
 <!-- ═══ THE SHIFT (bottleneck -> fix) ═══ -->
 <section class="shift">
@@ -1080,7 +1089,7 @@ html,body{margin:0;height:100%;background:var(--ink-0)}
 <script>
 var AGENTS=[
  {id:&quot;oem&quot;,name:&quot;OEM Lookup&quot;,role:&quot;Parts manager&quot;,status:&quot;running&quot;,statusLabel:&quot;Running&quot;,
-  desc:&quot;Cross-references Partslink24, TecDoc, and your ERP. A 30-minute manual lookup crushed to a 30-second autonomous execution.&quot;,
+  desc:&quot;Cross-references Partslink24, TecDoc, and your ERP. A 30-minute manual lookup crushed to a 30-second run.&quot;,
   stats:[[&quot;188&quot;,&quot;Today&quot;],[&quot;30s&quot;,&quot;Avg cycle&quot;],[&quot;60×&quot;,&quot;Vs manual&quot;]],
   log:[[&quot;09:42:07&quot;,&quot;Resolved OE 5Q0615301 to 4 cross-refs <b>· confirmed</b>&quot;],[&quot;09:41:33&quot;,&quot;Queried TecDoc and the ERP in parallel&quot;],[&quot;09:40:58&quot;,&quot;Intake: VIN WVWZZZ, front brake set&quot;],[&quot;09:38:12&quot;,&quot;Cycle closed in <b>28s</b>&quot;]]},
  {id:&quot;quote&quot;,name:&quot;Quote Desk&quot;,role:&quot;Sales desk&quot;,status:&quot;drafted&quot;,statusLabel:&quot;Drafted · 47&quot;,
@@ -1199,14 +1208,44 @@ render();
 </body></html>"></iframe>
 </section>
 
+<!-- ═══ HOW AN ENGAGEMENT RUNS ═══ -->
+<section class="engage" id="engagement">
+  <div class="engage-head">
+    <span class="ey ey-dk">How an Engagement Runs</span>
+    <h2>We don't ask you to trust us. We ask you to&nbsp;measure.</h2>
+  </div>
+  <div class="process-grid engage-grid">
+    <div class="process-step">
+      <span class="process-bignum">01</span>
+      <span class="process-num">01 / AUDIT</span>
+      <span class="process-name">Audit</span>
+      <span class="process-desc">Paid, scoped, agreed before we start. We map where your hours and margin leak. The findings are yours, whoever you build with.</span>
+    </div>
+    <div class="process-step">
+      <span class="process-bignum">02</span>
+      <span class="process-num">02 / TRANSFORMATION</span>
+      <span class="process-name">Transformation</span>
+      <span class="process-desc">Scoped and quoted from what the audit found. We build, deploy, and wire the agents into the systems you already run.</span>
+    </div>
+    <div class="process-step">
+      <span class="process-bignum">03</span>
+      <span class="process-num">03 / OPERATIONS</span>
+      <span class="process-name">Operations</span>
+      <span class="process-desc">We stay on and run what we built, and the agents earn more of the routine as they prove it. You keep the decisions.</span>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ ABOUT — OPERATIONAL PHILOSOPHY ═══ -->
 <section class="alead" id="about">
   <span class="ey">The Operational Philosophy</span>
   <h2>Founded out of a refusal to accept the compounding misery of repetitive human&nbsp;labor.</h2>
-  <blockquote class="philo-quote">We start on the operational floor, whether that's a global distribution warehouse, a financial back-office, or an enterprise service center.</blockquote>
-  <div class="twocol">
-    <p>We sit next to the operators, map the friction, and engineer the autonomous solution. A manual, multi-hour grind is crushed into a single automated execution.</p>
-    <p>We capture one operational vertical, compound the intelligence, and move to the next. The system grows sharper with every deployment, constantly expanding the boundary of what a machine can execute.</p>
+  <blockquote class="philo-quote">We start on the operational floor, whether that's the order desk, the back office, or the service counter.</blockquote>
+  <!-- SECOND PHILOSOPHY PARAGRAPH REMOVED 2026-08-14 (Ardi's call): vertical-sequence
+       model retired in favor of generalist entry; sentence also implied multi-vertical
+       track record. No replacement without Ardi's approval. -->
+  <div class="twocol twocol-single">
+    <p>We sit next to the operators, map the friction, and engineer the system that takes the work over. A manual, multi-hour grind is crushed into a single automated execution.</p>
   </div>
 </section>
 
@@ -1225,18 +1264,18 @@ render();
       <div class="field"><label for="industry">Industry</label><input id="industry" name="Industry" type="text"></div>
       <div class="field"><label for="bottleneck">What slows you down?</label><textarea id="bottleneck" name="What slows you down"></textarea></div>
       <button type="submit" class="btn btn-ink btn-lg">Send message</button>
-      <p class="form-fine">We use your details only to reply — no lists, no spam. <a href="#" data-privacy-open>How we handle your data</a>.</p>
+      <p class="form-fine">We use your details only to reply. No lists, no spam. <a href="/privacy" target="_blank" rel="noopener">How we handle your data</a>.</p>
     </form>
     <div class="cside">
       <div class="cprocess">
         <span class="ey">The Process</span>
         <div class="csteps">
           <div class="cstep"><span class="cstep-num">01</span><div class="cstep-body"><span class="cstep-l">Tell us</span><p>What's slowing your business down.</p></div></div>
-          <div class="cstep"><span class="cstep-num">02</span><div class="cstep-body"><span class="cstep-l">We talk</span><p>A quick call on your AI and automation ops.</p></div></div>
-          <div class="cstep"><span class="cstep-num">03</span><div class="cstep-body"><span class="cstep-l">We audit</span><p>If we agree, we run an AI audit.</p></div></div>
+          <div class="cstep"><span class="cstep-num">02</span><div class="cstep-body"><span class="cstep-l">We talk</span><p>A short call. If we don't think agents can move your numbers, we say so.</p></div></div>
+          <div class="cstep"><span class="cstep-num">03</span><div class="cstep-body"><span class="cstep-l">The audit</span><p>Every engagement starts with a paid audit: fixed scope, findings you own. It is how you find out whether we are any good before anything gets built.</p></div></div>
         </div>
       </div>
-      <div class="cdirect"><span class="ey">Or Write Us</span><a href="/cdn-cgi/l/email-protection#1b72757d745b797e7d776e7e756f727835787476"><span class="__cf_email__" data-cfemail="94fdfaf2fbd4f6f1f2f8e1f1fae0fdf7baf7fbf9">[email&#160;protected]</span></a></div>
+      <div class="cdirect"><span class="ey">Or Write Us</span><a href="mailto:info@befluentic.com">info@befluentic.com</a></div>
     </div>
   </div>
 </section>
@@ -1279,12 +1318,12 @@ render();
   </div>
   <div class="footer-bot">
     <span class="footer-legal">&copy; 2026 Fluentic</span>
-    <span class="footer-legal"><a href="#" data-privacy-open>Privacy Policy</a></span>
+    <span class="footer-legal"><a href="/privacy">Privacy</a></span>
   </div>
 </footer>
 
 <!-- Forms endpoint — Formspree (free). Both the contact form and the AI Readiness gate post here. -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>window.FLUENTIC_FORMSPREE='https://formspree.io/f/mqeopyzl';</script>
+<script>window.FLUENTIC_FORMSPREE='https://formspree.io/f/mqeopyzl';</script>
 
 <script>
 (function(){
@@ -1386,7 +1425,7 @@ render();
 
   if(!hasIO || reduce) return;
 
-  var sel = '.shift-head,.svc,.custom-note,.mesh-head,.mesh-stage,.process-head,.process-step,.band-overlay,.alead,.grader-cta-txt,.contact-head,.contact-wrap,.cta-geo-inner h2,.cta-geo-inner p';
+  var sel = '.engage-head,.shift-head,.svc,.custom-note,.mesh-head,.mesh-stage,.process-head,.process-step,.band-overlay,.alead,.grader-cta-txt,.contact-head,.contact-wrap,.cta-geo-inner h2,.cta-geo-inner p';
   var els = Array.prototype.slice.call(document.querySelectorAll(sel));
   els.forEach(function(el){ el.classList.add('reveal'); });
   ['.svc','.agent-card','.process-step'].forEach(function(s){
@@ -1404,21 +1443,7 @@ render();
 </script>
 
 <!-- AI READINESS CHECK — MODAL -->
-<div class="rc-modal" id="privacyModal" aria-hidden="true">
-  <div class="rc-modal-scrim" data-rc-close></div>
-  <div class="rc-modal-panel" role="dialog" aria-modal="true" aria-label="Privacy">
-    <button class="rc-modal-x" type="button" data-rc-close aria-label="Close">&times;</button>
-    <span class="pv-ey">Privacy</span>
-    <h2 class="pv-h">How we handle your data.</h2>
-    <div class="pv-body">
-      <p><span class="pv-lbl">What we collect</span>Your name, company, email, and whatever you tell us through the contact form or the AI Readiness Check. Nothing more.</p>
-      <p><span class="pv-lbl">Why</span>To reply, judge whether we are a fit, and prepare for a call. We do not use it for anything else.</p>
-      <p><span class="pv-lbl">What we never do</span>We do not sell, rent, or trade your data. No marketing lists. No sharing with third parties for advertising.</p>
-      <p><span class="pv-lbl">Analytics</span>We measure page traffic with a privacy-first tool that sets no cookies and builds no personal profiles.</p>
-      <p><span class="pv-lbl">Retention and control</span>We keep enquiries while we are in contact and remove them on request. Email <b><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c7aea9a1a887a5a2a1abb2a2a9b3aea4e9a4a8aa">[email&#160;protected]</a></b> to see, correct, or delete what we hold.</p>
-    </div>
-  </div>
-</div>
+
 
 <div class="rc-modal" id="rcModal" aria-hidden="true">
   <div class="rc-modal-scrim" data-rc-close></div>
@@ -1433,7 +1458,7 @@ render();
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /* AI Readiness Check — wizard factory (inline hero + modal popup) */
 (function(){
   function makeWizard(stage, stepEl, fillEl){
@@ -1451,10 +1476,10 @@ render();
     ];
     var DIMS = ['customer requests and repetitive lookups','inventory and data sync across your tools','quoting, procurement, and order handling','response time and month-end finance'];
     function band(p){
-      if(p<=25) return ['Manual',"Your operation runs on people doing work agents should own. Every hour they spend on repetition is an hour not spent on customers, relationships, or growth. The gap between where you are and where you could be is the largest it will ever be — and the fastest to close."];
-      if(p<=50) return ['Assisted',"You have tools. But the operation still depends on people to connect them. The chains are manual, the handoffs are human, and the hours are leaking. Agents don't replace your tools — they run the gaps between them."];
-      if(p<=75) return ['Automated',"Workflows run. But humans still supervise, intervene, and catch what falls through. You're close — the last stretch is where the real hours and cost live. Autonomous operations don't need a person watching every step."];
-      return ['Autonomous',"Your operation mostly runs itself. The question now is depth — how accurate, how resilient, how far into the edge cases your agents actually go. Most businesses at this score still have one or two operations holding everything back."];
+      if(p<=25) return ['Manual',"Your operation runs on people doing work agents should own. Every hour they spend on repetition is an hour not spent on customers, relationships, or growth. The gap between where you are and where you could be is the largest it will ever be, and the fastest to close."];
+      if(p<=50) return ['Assisted',"You have tools. But the operation still depends on people to connect them. The chains are manual, the handoffs are human, and the hours are leaking. Agents don't replace your tools. They run the gaps between them."];
+      if(p<=75) return ['Automated',"Workflows run. But humans still supervise, intervene, and catch what falls through. You're close. The last stretch is where the real hours and cost live. An operation that runs itself doesn't need a person watching every step."];
+      return ['Self-running',"Your operation mostly runs itself. The question now is depth: how accurate, how resilient, how far into the edge cases your agents actually go. Most businesses at this score still have one or two operations holding everything back."];
     }
     function pad(n){ return (n<10?'0':'') + n; }
     function animate(){ if(reduce) return; stage.classList.remove('rc-anim'); void stage.offsetWidth; stage.classList.add('rc-anim'); }
@@ -1477,12 +1502,12 @@ render();
       stage.innerHTML =
         '<div class="rc-q">Your score is ready.</div>'
         + '<p class="rc-note">Enter your email to see your AI Readiness Score and the operations to hand off first.</p>'
-        + '<form class="rc-email" novalidate>'
+        + '<form class="rc-email rc-email-col" novalidate>'
         + '<input type="email" class="rc-input" placeholder="you@company.com" autocomplete="email" required>'
+        + '<p class="rc-disclosure">We will send your AI Readiness score to this address. We may also follow up with information about how Fluentic can help with the areas your results identify. You can opt out of any follow-up at any time. See our privacy notice: <a href="/privacy" target="_blank" rel="noopener">befluentic.com/privacy</a></p>'
         + '<button type="submit" class="btn btn-fill btn-lg">See my score</button>'
         + '</form>'
         + '<div class="rc-err"></div>'
-        + '<p class="rc-fine">Used only to send your result and follow up once. <a href="#" data-privacy-open>How we handle your data</a>.</p>'
         + '<div class="rc-foot"><button type="button" class="rc-back" data-act="gate">&larr; Back</button></div>';
       animate();
       var inp = stage.querySelector('.rc-input'); if(inp) inp.focus();
@@ -1501,6 +1526,7 @@ render();
         + '<div class="rc-bandbox"><span class="l">AI Readiness Score</span><span class="v">'+bd[0]+'</span></div></div>'
         + '<p class="rc-diag">'+bd[1]+'</p>'
         + '<p class="rc-ops">Start by handing off <b>'+ops+'</b>.</p>'
+        + '<p class="rc-ops rc-ladder">The Readiness Check is the 2-minute version of this. The audit is the real one, run on your actual operation.</p>'
         + '<div class="rc-cta"><a href="https://calendly.com/befluentic-info/30min" class="btn btn-fill btn-lg" target="_blank" rel="noopener noreferrer">Book a call</a>'
         + '<button type="button" class="rc-restart" data-act="restart">Start over</button></div>';
       animate();
@@ -1540,9 +1566,9 @@ render();
             var t2=0,z2; for(z2=0;z2<8;z2++){ t2 += (answers[z2]||0); }
             var fd2 = new FormData();
             fd2.append('email', val);
-            fd2.append('_subject', 'AI Readiness lead — befluentic.com');
+            fd2.append('_subject', 'AI Readiness lead · befluentic.com');
             fd2.append('AI Readiness Score', Math.round(t2/24*100) + '/100');
-            fd2.append('source', 'AI Readiness Check — befluentic.com');
+            fd2.append('source', 'AI Readiness Check · befluentic.com');
             fetch(EP, { method:'POST', body:fd2, headers:{ 'Accept':'application/json' } }).catch(function(){});
           }
         }catch(_e){}
@@ -1564,15 +1590,6 @@ render();
     if(modal){ Array.prototype.slice.call(modal.querySelectorAll('[data-rc-close]')).forEach(function(b){ b.addEventListener('click', closeModal); }); }
     document.addEventListener('keydown', function(e){ if((e.key==='Escape'||e.key==='Esc') && modal && modal.classList.contains('open')) closeModal(); });
 
-    /* Privacy modal */
-    var pm = g('privacyModal');
-    if(pm){
-      var pmOpen=function(){ pm.classList.add('open'); pm.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; };
-      var pmClose=function(){ pm.classList.remove('open'); pm.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
-      document.addEventListener('click', function(e){ var t=e.target&&e.target.closest?e.target.closest('[data-privacy-open]'):null; if(t){ e.preventDefault(); pmOpen(); } });
-      Array.prototype.slice.call(pm.querySelectorAll('[data-rc-close]')).forEach(function(b){ b.addEventListener('click', pmClose); });
-      document.addEventListener('keydown', function(e){ if((e.key==='Escape'||e.key==='Esc') && pm.classList.contains('open')) pmClose(); });
-    }
 
     /* Contact form -> Formspree, with graceful email fallback */
     var cf = document.querySelector('form.cform');
@@ -1589,8 +1606,8 @@ render();
           var ei=cf.querySelector('#email'); if(ei) ei.focus();
           return;
         }
-        data.append('_subject','New enquiry — befluentic.com');
-        data.append('source','Contact — befluentic.com');
+        data.append('_subject','New enquiry · befluentic.com');
+        data.append('source','Contact · befluentic.com');
         if(!EP || EP.indexOf('REPLACE') > -1 || !window.fetch){
           var lines=[]; data.forEach(function(v,k){ if(k!=='source') lines.push(k+': '+v); });
           window.location.href='mailto:info@befluentic.com?subject='+encodeURIComponent('Website enquiry')+'&body='+encodeURIComponent(lines.join('\n'));
@@ -1600,7 +1617,7 @@ render();
         fetch(EP, { method:'POST', body:data, headers:{ 'Accept':'application/json' } })
           .then(function(r){ if(!r.ok) throw 0; return r.json(); })
           .then(function(){ cf.innerHTML='<div class="cform-done"><span class="cform-done-l">Sent</span><p>Thanks. We read every message and reply within one business day.</p></div>'; })
-          .catch(function(){ if(btn){ btn.disabled=false; btn.textContent='Send message'; } var er=cf.querySelector('.cform-err'); if(!er){ er=document.createElement('div'); er.className='cform-err'; cf.appendChild(er); } er.textContent='Could not send just now — email us directly at info@befluentic.com.'; });
+          .catch(function(){ if(btn){ btn.disabled=false; btn.textContent='Send message'; } var er=cf.querySelector('.cform-err'); if(!er){ er=document.createElement('div'); er.className='cform-err'; cf.appendChild(er); } er.textContent='Could not send just now. Email us directly at info@befluentic.com.'; });
       });
     }
   });
