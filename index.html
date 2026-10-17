@@ -194,7 +194,7 @@
     @media(max-width:600px){.hero-pill{white-space:normal;line-height:1.7;max-width:100%}}
     .hero-pill::before{content:'';width:6px;height:6px;background:var(--bone-60);animation:pulse 2s infinite}
     /* Rotating headline word (added 2026-10-18): slide-up swap, rests on "business" */
-    .hero-rot{display:inline-block;position:relative;vertical-align:baseline;overflow:hidden;line-height:.9;padding:.06em .14em .04em;margin:0 .03em;box-sizing:content-box;background:var(--bone);color:var(--ink);transition:width .45s cubic-bezier(.2,.7,.2,1);white-space:nowrap}
+    .hero-rot{display:inline-block;position:relative;vertical-align:baseline;overflow:visible;clip-path:inset(0);line-height:.9;padding:.06em .14em .04em;margin:0 .03em;box-sizing:content-box;background:var(--bone);color:var(--ink);transition:width .45s cubic-bezier(.2,.7,.2,1);white-space:nowrap}
     .hero-rot-word{display:inline-block;will-change:transform,opacity}
     .hero-rot-word.out{animation:rotOut .42s cubic-bezier(.6,0,.8,.4) forwards}
     .hero-rot-word.in{animation:rotIn .5s cubic-bezier(.2,.7,.2,1) forwards}
