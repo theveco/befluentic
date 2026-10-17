@@ -474,6 +474,42 @@
     .pband-track i{font-style:normal;color:rgba(10,10,10,.4)}
     @keyframes pband-scroll{to{transform:translateX(-50%)}}
     @media(prefers-reduced-motion:reduce){.pband-track{animation:none}}
+    /* ═══ PROCESS, dark staggered layout (2026-10-18; old .process-grid cards CSS left dormant) ═══ */
+    .process.process-dk{background:var(--ink);color:var(--bone);border-top:1px solid var(--bone-06)}
+    .process-head-r{display:flex;flex-direction:column;align-items:flex-start;margin-left:auto;max-width:860px;margin-bottom:clamp(3rem,6vw,5rem)}
+    .process-dk .process-head h2{font-size:clamp(2.4rem,4.4vw,3.6rem)}
+    .process-dk .process-head h2{color:var(--bone);max-width:none}
+    .process-dk .hl{display:inline-block;background:var(--bone);color:var(--ink);padding:0 .14em;line-height:1}
+    .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(2rem,4vw,4rem) clamp(1.5rem,3vw,3rem);align-items:start}
+    .ps{display:flex;flex-direction:column;gap:.9rem;max-width:300px}
+    .ps-num{font-family:var(--m);font-size:.625rem;letter-spacing:.2em;color:var(--bone-40)}
+    .ps-name{font-weight:500;font-size:clamp(1.5rem,2.2vw,2rem);line-height:1.05;letter-spacing:-.03em;color:var(--bone);margin-top:.5rem}
+    .ps-desc{font-size:.9rem;line-height:1.6;color:var(--bone-60)}
+    .pt{aspect-ratio:5/3;border:1px solid var(--bone-12);background:var(--void);overflow:hidden;position:relative;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+    .pt svg{position:absolute;inset:0;width:100%;height:100%}
+    .pt-lines path{fill:none;stroke:var(--bone-20);stroke-width:1;vector-effect:non-scaling-stroke}
+    .pt-glyph{fill:var(--bone)}
+    .pt-glyph-2{fill:none;stroke:var(--bone);stroke-width:2;vector-effect:non-scaling-stroke}
+    .pt:hover{transform:translateY(-4px)}
+    .pgrid .ps:nth-child(1){grid-column:1}.pgrid .pt:nth-child(2){grid-column:2}.pgrid .ps:nth-child(3){grid-column:3}
+    .pgrid .pgap{grid-column:1}.pgrid .ps:nth-child(5){grid-column:2}.pgrid .pt:nth-child(6){grid-column:3}.pgrid .ps:nth-child(7){grid-column:4}
+    .pgrid .pt-lines{animation:pt-drift 14s linear infinite}
+    @keyframes pt-drift{from{transform:translateY(0)}to{transform:translateY(-14px)}}
+    @media(max-width:900px){.pgrid{grid-template-columns:1fr 1fr}.pgrid > *{grid-column:auto !important}.pgap{display:none}.process-head-r{margin-left:0}}
+    @media(max-width:600px){.pgrid{grid-template-columns:1fr}.pt{aspect-ratio:16/9}.process-dk .process-head h2 br{display:none}}
+    @media(prefers-reduced-motion:reduce){.pgrid .pt-lines{animation:none}}
+    /* Light variant of the dark process layout */
+    .process.process-lt{background:var(--bone);color:var(--ink);border-top:1px solid var(--bone-06)}
+    .process-lt .process-head .ey{color:var(--ink-70)}
+    .process-lt .process-head h2{color:var(--ink)}
+    .process-lt .hl{background:var(--ink);color:var(--bone)}
+    .process-lt .ps-num{color:var(--ink-50)}
+    .process-lt .ps-name{color:var(--ink)}
+    .process-lt .ps-desc{color:var(--ink-70)}
+    .process-lt .pt{border-color:var(--ink-12);background:#efece4}
+    .process-lt .pt-lines path{stroke:rgba(10,10,10,.18)}
+    .process-lt .pt-glyph{fill:var(--ink)}
+    .process-lt .pt-glyph-2{stroke:var(--ink)}
     /* ═══ LANDING EXTRAS ═══ */
     html{scroll-padding-top:60px}
     /* PROOF (inline case) */
@@ -1164,36 +1200,19 @@
 </section>
 
 <!-- ═══ OUR PROCESS ═══ -->
-<section class="process" id="process">
-  <div class="process-head">
-    <span class="ey ey-dk">Our Process</span>
-    <h2>Four steps.<br>From bottleneck to&nbsp;hands-off.</h2>
+<section class="process process-dk" id="process">
+  <div class="process-head process-head-r">
+    <span class="ey">Our Process</span>
+    <h2>Four steps.<br>From bottleneck to <span class="hl">hands-off</span>.</h2>
   </div>
-  <div class="process-grid">
-    <div class="process-step">
-      <span class="process-bignum">01</span>
-      <span class="process-num">01 / DIAGNOSE</span>
-      <span class="process-name">Diagnose</span>
-      <span class="process-desc">We map your data, workflows, and bottlenecks to find what's worth automating.</span>
-    </div>
-    <div class="process-step">
-      <span class="process-bignum">02</span>
-      <span class="process-num">02 / DESIGN</span>
-      <span class="process-name">Design</span>
-      <span class="process-desc">We architect the right system and define the metrics that prove it works.</span>
-    </div>
-    <div class="process-step">
-      <span class="process-bignum">03</span>
-      <span class="process-num">03 / BUILD</span>
-      <span class="process-name">Build</span>
-      <span class="process-desc">We develop, test, and integrate the solution into your real workflows.</span>
-    </div>
-    <div class="process-step">
-      <span class="process-bignum">04</span>
-      <span class="process-num">04 / DEPLOY</span>
-      <span class="process-name">Deploy &amp; Improve</span>
-      <span class="process-desc">We launch, monitor performance, and optimize continuously, every edge case makes it sharper.</span>
-    </div>
+  <div class="pgrid">
+    <div class="ps"><span class="ps-num">01.</span><h3 class="ps-name">Diagnose.</h3><p class="ps-desc">We map your data, workflows, and bottlenecks to find what's worth automating.</p></div>
+    <div class="pt"><svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g class="pt-lines"><path d="M-40,-6 C 160,-46 440,34 640,-6" /><path d="M-40,8 C 160,-32 440,48 640,8" /><path d="M-40,22 C 160,-18 440,62 640,22" /><path d="M-40,36 C 160,-4 440,76 640,36" /><path d="M-40,50 C 160,10 440,90 640,50" /><path d="M-40,64 C 160,24 440,104 640,64" /><path d="M-40,78 C 160,38 440,118 640,78" /><path d="M-40,92 C 160,52 440,132 640,92" /><path d="M-40,106 C 160,66 440,146 640,106" /><path d="M-40,120 C 160,80 440,160 640,120" /><path d="M-40,134 C 160,94 440,174 640,134" /><path d="M-40,148 C 160,108 440,188 640,148" /><path d="M-40,162 C 160,122 440,202 640,162" /><path d="M-40,176 C 160,136 440,216 640,176" /><path d="M-40,190 C 160,150 440,230 640,190" /><path d="M-40,204 C 160,164 440,244 640,204" /><path d="M-40,218 C 160,178 440,258 640,218" /><path d="M-40,232 C 160,192 440,272 640,232" /><path d="M-40,246 C 160,206 440,286 640,246" /><path d="M-40,260 C 160,220 440,300 640,260" /><path d="M-40,274 C 160,234 440,314 640,274" /><path d="M-40,288 C 160,248 440,328 640,288" /><path d="M-40,302 C 160,262 440,342 640,302" /><path d="M-40,316 C 160,276 440,356 640,316" /><path d="M-40,330 C 160,290 440,370 640,330" /><path d="M-40,344 C 160,304 440,384 640,344" /><path d="M-40,358 C 160,318 440,398 640,358" /><path d="M-40,372 C 160,332 440,412 640,372" /><path d="M-40,386 C 160,346 440,426 640,386" /></g><polygon points="282,150 346,150 318,230 254,230" class="pt-glyph"/></svg></div>
+    <div class="ps"><span class="ps-num">02.</span><h3 class="ps-name">Design.</h3><p class="ps-desc">We architect the right system and define the metrics that prove it works.</p></div>
+    <div class="pgap"></div>
+    <div class="ps"><span class="ps-num">03.</span><h3 class="ps-name">Build.</h3><p class="ps-desc">We develop, test, and integrate the solution into your real workflows.</p></div>
+    <div class="pt"><svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g class="pt-lines"><path d="M-40,-6 C 160,-46 440,34 640,-6" /><path d="M-40,8 C 160,-32 440,48 640,8" /><path d="M-40,22 C 160,-18 440,62 640,22" /><path d="M-40,36 C 160,-4 440,76 640,36" /><path d="M-40,50 C 160,10 440,90 640,50" /><path d="M-40,64 C 160,24 440,104 640,64" /><path d="M-40,78 C 160,38 440,118 640,78" /><path d="M-40,92 C 160,52 440,132 640,92" /><path d="M-40,106 C 160,66 440,146 640,106" /><path d="M-40,120 C 160,80 440,160 640,120" /><path d="M-40,134 C 160,94 440,174 640,134" /><path d="M-40,148 C 160,108 440,188 640,148" /><path d="M-40,162 C 160,122 440,202 640,162" /><path d="M-40,176 C 160,136 440,216 640,176" /><path d="M-40,190 C 160,150 440,230 640,190" /><path d="M-40,204 C 160,164 440,244 640,204" /><path d="M-40,218 C 160,178 440,258 640,218" /><path d="M-40,232 C 160,192 440,272 640,232" /><path d="M-40,246 C 160,206 440,286 640,246" /><path d="M-40,260 C 160,220 440,300 640,260" /><path d="M-40,274 C 160,234 440,314 640,274" /><path d="M-40,288 C 160,248 440,328 640,288" /><path d="M-40,302 C 160,262 440,342 640,302" /><path d="M-40,316 C 160,276 440,356 640,316" /><path d="M-40,330 C 160,290 440,370 640,330" /><path d="M-40,344 C 160,304 440,384 640,344" /><path d="M-40,358 C 160,318 440,398 640,358" /><path d="M-40,372 C 160,332 440,412 640,372" /><path d="M-40,386 C 160,346 440,426 640,386" /></g><polygon points="258,150 302,150 286,230 242,230" class="pt-glyph"/><polygon points="314,150 358,150 342,230 298,230" class="pt-glyph pt-glyph-2"/></svg></div>
+    <div class="ps"><span class="ps-num">04.</span><h3 class="ps-name">Deploy &amp; Improve.</h3><p class="ps-desc">We launch, monitor performance, and optimize continuously, every edge case makes it sharper.</p></div>
   </div>
 </section>
 
