@@ -366,6 +366,25 @@
       .footer-grid{flex-direction:column}
     }
 
+
+    /* ═══ WORK TEASER (added 2026-10-17) ═══ */
+    .workt{background:var(--void);padding:clamp(5rem,9vw,8rem) var(--px);border-top:1px solid var(--bone-06);border-bottom:1px solid var(--bone-06)}
+    .workt-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;margin-bottom:2.5rem}
+    .workt-head .ey{display:block;margin-bottom:1.25rem}
+    .workt-head h2{font-weight:500;font-size:clamp(2.4rem,4.8vw,3.9rem);line-height:.95;letter-spacing:-.035em;max-width:640px}
+    .workt-head p{font-size:1rem;line-height:1.7;color:var(--bone-60);max-width:420px}
+    .workt-list{border-top:1px solid var(--bone-12)}
+    .workt-row{display:grid;grid-template-columns:60px 1fr 1.4fr auto;gap:1rem 1.5rem;align-items:center;padding:1.5rem 0;border-bottom:1px solid var(--bone-12);transition:background .2s,padding .2s}
+    .workt-row:hover{background:var(--bone-03);padding-left:.75rem;padding-right:.75rem}
+    .workt-num{font-family:var(--m);font-size:.6875rem;letter-spacing:.18em;color:var(--bone-40);display:flex;align-items:center;gap:.6rem}
+    .workt-num::before{content:"";display:block;width:8px;height:18px;background:var(--bone);transform:skewX(-22deg)}
+    .workt-sector{font-family:var(--m);font-size:.6875rem;text-transform:uppercase;letter-spacing:.18em;color:var(--bone-60)}
+    .workt-line{font-size:1.0625rem;font-weight:500;letter-spacing:-.015em;color:var(--bone)}
+    .workt-arrow{font-family:var(--m);font-size:.6875rem;letter-spacing:.18em;color:var(--bone-40);transition:color .2s}
+    .workt-row:hover .workt-arrow{color:var(--bone)}
+    .workt-cta{margin-top:2rem}
+    @media(max-width:900px){.workt-row{grid-template-columns:60px 1fr auto;}.workt-line{grid-column:2 / span 2}.workt-arrow{grid-row:1;grid-column:3}}
+    @media(max-width:600px){.workt-row{grid-template-columns:1fr auto;gap:.5rem 1rem}.workt-num{grid-column:1}.workt-arrow{grid-column:2;grid-row:1}.workt-sector{grid-column:1 / span 2}.workt-line{grid-column:1 / span 2}}
     /* ═══ LANDING EXTRAS ═══ */
     html{scroll-padding-top:60px}
     /* PROOF (inline case) */
@@ -770,6 +789,7 @@
   <div class="nav-r">
     <a href="#services" class="nav-a">Services</a>
     <a href="#process" class="nav-a">Process</a>
+    <a href="/work" class="nav-a">Work</a>
     <a href="#grader" class="nav-a">AI Readiness Check</a>
     <a href="#about" class="nav-a">About</a>
     <a href="https://calendly.com/befluentic-info/30min" class="btn" target="_blank" rel="noopener noreferrer">Book a call</a>
@@ -1340,6 +1360,44 @@ render();
   </div>
 </section>
 
+<!-- ═══ WORK TEASER (added 2026-10-17; full files at /work) ═══ -->
+<section class="workt" id="work">
+  <div class="workt-head">
+    <div>
+      <span class="ey">Work</span>
+      <h2>Where we proved&nbsp;it.</h2>
+    </div>
+    <p>Four operations, no logos, no percentages. Each one had a job that belonged to a person and should have belonged to a system.</p>
+  </div>
+  <div class="workt-list">
+    <a class="workt-row" href="/work#file-01">
+      <span class="workt-num">01</span>
+      <span class="workt-sector">Auto-parts wholesale</span>
+      <span class="workt-line">The counter stopped being a lookup desk.</span>
+      <span class="workt-arrow">&rarr;</span>
+    </a>
+    <a class="workt-row" href="/work#file-02">
+      <span class="workt-num">02</span>
+      <span class="workt-sector">Beauty salon</span>
+      <span class="workt-line">Every call answered. Hands stay on the client.</span>
+      <span class="workt-arrow">&rarr;</span>
+    </a>
+    <a class="workt-row" href="/work#file-03">
+      <span class="workt-num">03</span>
+      <span class="workt-sector">Food and beverage distribution</span>
+      <span class="workt-line">The team stopped being the glue.</span>
+      <span class="workt-arrow">&rarr;</span>
+    </a>
+    <a class="workt-row" href="/work#file-04">
+      <span class="workt-num">04</span>
+      <span class="workt-sector">Construction materials</span>
+      <span class="workt-line">The catalog stopped living in someone's head.</span>
+      <span class="workt-arrow">&rarr;</span>
+    </a>
+  </div>
+  <a href="/work" class="btn workt-cta">See the work</a>
+</section>
+
 <!-- ═══ ABOUT — OPERATIONAL PHILOSOPHY ═══ -->
 <section class="alead" id="about">
   <img class="alead-overlay" src="operational-philosophy-compression-field.png" alt="" aria-hidden="true">
@@ -1353,7 +1411,7 @@ render();
     <p>We sit next to the operators, map the friction, and engineer the system that takes the work over. A manual, multi-hour grind is crushed into a single automated execution.</p>
   </div>
   <div class="twocol twocol-single">
-    <p>Fluentic (befluentic.com) is based in Prishtina, Kosovo. We deploy AI agents into the operations a business already runs — quoting, procurement, inventory, support, invoicing, reconciliation. Every engagement starts with a paid, fixed-scope audit; then we build, deploy, and stay on to run what we built. Your team keeps the decisions.</p>
+    <p>Fluentic (befluentic.com) is based in Prishtina, Kosovo. We deploy AI agents into the operations a business already runs: quoting, procurement, inventory, support, invoicing, reconciliation. Every engagement starts with a paid, fixed-scope audit; then we build, deploy, and stay on to run what we built. Your team keeps the decisions.</p>
   </div>
 </section>
 
@@ -1416,6 +1474,7 @@ render();
     <div class="footer-links">
       <a href="#services">Services</a>
       <a href="#process">Process</a>
+      <a href="/work">Work</a>
       <a href="#grader">AI Readiness Check</a>
       <a href="#about">About</a>
     </div>
