@@ -1032,57 +1032,12 @@
   </div>
 </section>
 
-<!-- ═══ MESH DIAGRAM ═══ -->
-<section class="mesh" id="how">
-  <div class="mesh-head">
-    <div>
-      <span class="ey">The Mesh</span>
-      <h2>Every agent, wired into your&nbsp;stack.</h2>
-    </div>
-    <p>Agents sit at the center of your operation, connected to the systems you already run. Work flows in, decisions flow out, continuously.</p>
-  </div>
-  <div class="mesh-stage">
-    <svg class="mesh-svg" viewBox="0 0 1000 600" role="img" aria-label="Fluentic agent mesh connecting to your systems">
-      <!-- ring (web cross-links) -->
-      <polyline class="m-ring" points="180,90 500,70 820,90 910,300 820,510 500,530 180,510 90,300 180,90"/>
-      <!-- spokes -->
-      <line class="m-flow"  x1="500" y1="300" x2="180" y2="90"/>
-      <line class="m-spoke" x1="500" y1="300" x2="500" y2="70"/>
-      <line class="m-flow"  x1="500" y1="300" x2="820" y2="90"/>
-      <line class="m-spoke" x1="500" y1="300" x2="910" y2="300"/>
-      <line class="m-flow"  x1="500" y1="300" x2="820" y2="510"/>
-      <line class="m-spoke" x1="500" y1="300" x2="500" y2="530"/>
-      <line class="m-flow"  x1="500" y1="300" x2="180" y2="510"/>
-      <line class="m-spoke" x1="500" y1="300" x2="90"  y2="300"/>
-      <!-- traveling data dots -->
-      <circle class="m-dot" r="3"><animateMotion dur="3.2s" begin="0s"   repeatCount="indefinite" path="M500,300 L180,90"/></circle>
-      <circle class="m-dot" r="3"><animateMotion dur="3.2s" begin="0.8s" repeatCount="indefinite" path="M500,300 L820,90"/></circle>
-      <circle class="m-dot" r="3"><animateMotion dur="3.2s" begin="1.6s" repeatCount="indefinite" path="M500,300 L820,510"/></circle>
-      <circle class="m-dot" r="3"><animateMotion dur="3.2s" begin="2.4s" repeatCount="indefinite" path="M500,300 L180,510"/></circle>
-      <circle class="m-dot" r="3"><animateMotion dur="3.6s" begin="1.2s" repeatCount="indefinite" path="M90,300 L500,300"/></circle>
-      <circle class="m-dot" r="3"><animateMotion dur="3.6s" begin="3.0s" repeatCount="indefinite" path="M910,300 L500,300"/></circle>
-      <!-- outer nodes -->
-      <g><rect class="m-node" x="110" y="68"  width="140" height="44"/><text class="m-label" x="180" y="91">Customers</text></g>
-      <g><rect class="m-node" x="430" y="48"  width="140" height="44"/><text class="m-label" x="500" y="71">Messaging</text></g>
-      <g><rect class="m-node" x="750" y="68"  width="140" height="44"/><text class="m-label" x="820" y="91">Suppliers</text></g>
-      <g><rect class="m-node" x="840" y="278" width="140" height="44"/><text class="m-label" x="910" y="301">ERP</text></g>
-      <g><rect class="m-node" x="750" y="488" width="140" height="44"/><text class="m-label" x="820" y="511">Catalog</text></g>
-      <g><rect class="m-node" x="430" y="508" width="140" height="44"/><text class="m-label" x="500" y="531">Inventory</text></g>
-      <g><rect class="m-node" x="110" y="488" width="140" height="44"/><text class="m-label" x="180" y="511">Finance</text></g>
-      <g><rect class="m-node" x="20"  y="278" width="140" height="44"/><text class="m-label" x="90"  y="301">Your Data</text></g>
-      <!-- core -->
-      <rect class="m-corepulse" x="405" y="259" width="190" height="82"/>
-      <rect class="m-node-core" x="410" y="264" width="180" height="72"/>
-      <text class="m-core-1" x="500" y="293">FLUENTIC</text>
-      <text class="m-core-2" x="500" y="313">FLEET CORE</text>
-    </svg>
-  </div>
-  <div class="mesh-legend">
-    <span>Connected system</span>
-    <span>Fleet core</span>
-    <span>Live data flow</span>
-  </div>
-</section>
+<!-- MESH DIAGRAM REMOVED 2026-10-17 (Ardi's call). It sat exactly here, between Services and
+     Our Process: an octagon of eight system nodes (Customers, Messaging, Suppliers, ERP, Catalog,
+     Inventory, Finance, Your Data) around a FLUENTIC / FLEET CORE card, spokes with travelling data
+     dots, legend Connected system / Fleet core / Live data flow. CSS (.mesh, .mesh-head, .mesh-stage,
+     .mesh-svg, .m-*) left dormant. The "we sit on top of your systems" point is carried by the S/03
+     Workflow Automation card and the Engagement section. To restore, paste the section back here. -->
 
 <!-- ═══ OUR PROCESS ═══ -->
 <section class="process" id="process">
