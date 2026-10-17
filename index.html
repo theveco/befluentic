@@ -562,6 +562,11 @@
 
     /* THE SHIFT (bottleneck -> fix transformation) */
     .shift{background:var(--bone);color:var(--ink);padding:clamp(5rem,9vw,8rem) var(--px);border-top:1px solid var(--bone-06)}
+    .shift.shift-stmt{padding:clamp(7rem,13vw,11rem) var(--px)}
+    .shift-center{max-width:1040px;margin:0 auto;text-align:center;display:flex;flex-direction:column;align-items:center}
+    .shift-center .ey{display:block;margin-bottom:2rem;font-size:.625rem;font-weight:400;letter-spacing:.3em;color:var(--ink-50)}
+    .shift-center h2{font-weight:500;font-size:clamp(2.4rem,5.2vw,4.4rem);line-height:1.02;letter-spacing:-.035em;color:var(--ink)}
+    .shift-center p{margin-top:2rem;color:var(--ink-70);font-size:1.0625rem;line-height:1.65;max-width:600px}
     .shift-head{max-width:720px;margin-bottom:2.5rem}
     .shift-head .ey{display:block;margin-bottom:1.25rem}
     .shift-head h2{font-weight:500;font-size:clamp(2.4rem,4.8vw,3.9rem);line-height:.98;letter-spacing:-.035em;color:var(--ink)}
@@ -870,26 +875,12 @@
   </div>
 </div>
 
-<!-- ═══ METRICS ═══ -->
-<div class="metrics">
-  <div class="metric">
-    <span class="metric-val">&lt; 2 wks</span>
-    <span class="metric-label">To first deployment</span>
-  </div>
-  <div class="metric">
-    <span class="metric-val">70%+</span>
-    <span class="metric-label">Staff hours saved per week</span>
-  </div>
-  <div class="metric">
-    <span class="metric-val">&euro;0</span>
-    <span class="metric-label">Headcount you add</span>
-  </div>
-  <div class="metric">
-    <span class="metric-val">40%+</span>
-    <span class="metric-label">Operational cost reduced</span>
-  </div>
-</div>
-<div class="metrics-note">Figures from live deployments</div>
+<!-- METRICS STRIP REMOVED 2026-10-17 (Ardi's call). It sat exactly here, between the
+     ticker above and THE SHIFT below: four tiles (< 2 wks to first deployment, 70%+ staff
+     hours saved per week, EUR 0 headcount you add, 40%+ operational cost reduced) plus the
+     "Figures from live deployments" note. CSS (.metrics, .metric, .metric-val, .metric-label,
+     .metrics-note) is left dormant. The site now carries no proof numbers anywhere, matching
+     /work. To restore, paste the <div class="metrics"> markup back at this position. -->
 
 <!-- PROOF BAND REMOVED 2026-08-14 (Ardi's call). It sat exactly here, between the
      metrics strip above and THE SHIFT below. CSS (.proof, .proof-kick, .proof-h,
@@ -900,19 +891,11 @@
      body line. -->
 
 <!-- ═══ THE SHIFT (bottleneck -> fix) ═══ -->
-<section class="shift">
-  <div class="shift-head">
-    <span class="ey ey-dk">The Bottleneck &rarr; The Fix</span>
-    <h2>Your best people are buried in work that doesn't need&nbsp;them.</h2>
-    <p>It's not inefficiency, it's misallocation. We move the repetitive chains to agents, one operation at a time. Here's the shift.</p>
-  </div>
-  <div class="bx">
-    <div class="bx-card"><span class="bx-ghost">01</span><span class="bx-task">Stock levels</span><span class="bx-before">Updated after the fact</span><span class="bx-after"><span class="ar">&rarr;</span>Synced in real time</span></div>
-    <div class="bx-card"><span class="bx-ghost">02</span><span class="bx-task">Procurement</span><span class="bx-before">Chased by phone and email</span><span class="bx-after"><span class="ar">&rarr;</span>Triggered automatically on threshold</span></div>
-    <div class="bx-card"><span class="bx-ghost">03</span><span class="bx-task">Customer queries</span><span class="bx-before">Answered by staff, whenever they're free</span><span class="bx-after"><span class="ar">&rarr;</span>Resolved the moment they land</span></div>
-    <div class="bx-card"><span class="bx-ghost">04</span><span class="bx-task">Quote preparation</span><span class="bx-before">Rebuilt from scratch every time</span><span class="bx-after"><span class="ar">&rarr;</span>Generated on demand</span></div>
-    <div class="bx-card"><span class="bx-ghost">05</span><span class="bx-task">Invoicing &amp; reconciliation</span><span class="bx-before">Done at month-end</span><span class="bx-after"><span class="ar">&rarr;</span>Running continuously</span></div>
-    <div class="bx-card"><span class="bx-ghost">06</span><span class="bx-task">Reordering</span><span class="bx-before">Noticed too late, ordered in panic</span><span class="bx-after"><span class="ar">&rarr;</span>Monitored and triggered automatically</span></div>
+<section class="shift shift-stmt">
+  <div class="shift-center">
+    <span class="ey ey-dk">The Shift</span>
+    <h2>Most of a team's day is repeat work. It doesn't have to&nbsp;be.</h2>
+    <p>We find the work your people repeat, and make it run on its own: quietly, reliably, in the background. Your team keeps the decisions.</p>
   </div>
 </section>
 
