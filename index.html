@@ -209,6 +209,12 @@
     @keyframes scroll{to{transform:translateX(-50%)}}
     .ticker-item{font-family:var(--m);font-size:.5625rem;text-transform:uppercase;letter-spacing:.18em;color:rgba(245,242,235,0.55);padding:0 2rem}
     .ticker-dot{color:rgba(245,242,235,0.3)}
+    /* Industries ticker (added 2026-10-17): same dark band, full Bone type, scrolls the other way */
+    .ticker-ind{border-bottom:none}
+    .ticker-ind .ticker-track{animation:scroll-rev 60s linear infinite}
+    @keyframes scroll-rev{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+    .ticker-ind .ticker-item{color:var(--bone);font-weight:500}
+    .ticker-ind .ticker-dot{color:rgba(245,242,235,0.3)}
 
     /* ═══ METRICS ═══ */
     .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bone-06);border-bottom:1px solid var(--bone-06)}
@@ -834,15 +840,9 @@
       </div>
     </div>
   </div>
-  <div class="hero-bar">
-    <span class="hero-status">For distribution, wholesale, services &amp; retail</span>
-    <div class="hero-services">
-      <span>AI Strategy</span>
-      <span>Custom Agents</span>
-      <span>Workflow Automation</span>
-      <span>AI Product Development</span>
-    </div>
-  </div>
+  <!-- HERO BAR REMOVED 2026-10-17 (Ardi's call): status line "For distribution, wholesale,
+       services & retail" plus the four service names. CSS (.hero-bar, .hero-status,
+       .hero-services) left dormant. -->
 </section>
 
 <!-- MOBILE-ONLY AI READINESS ENTRY -->
@@ -852,6 +852,40 @@
   <p>Two minutes, eight questions. See where your operation stands, and the first work to hand to&nbsp;agents.</p>
   <a href="#grader" class="btn btn-fill btn-lg" data-rc-open>Take the AI Readiness Check</a>
 </section>
+
+<!-- ═══ TICKER: INDUSTRIES (added 2026-10-17) ═══ -->
+<div class="ticker ticker-ind" aria-label="Industries">
+  <div class="ticker-track">
+    <span class="ticker-item">Wholesale</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Distribution</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Retail</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Automotive</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Construction materials</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Food and beverage</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Accounting and audit</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Professional services</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Salons and clinics</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Pharmacies</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Hospitality</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Logistics</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Manufacturing</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">E-commerce</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Wholesale</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Distribution</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Retail</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Automotive</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Construction materials</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Food and beverage</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Accounting and audit</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Professional services</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Salons and clinics</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Pharmacies</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Hospitality</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Logistics</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">Manufacturing</span><span class="ticker-dot">&middot;</span>
+    <span class="ticker-item">E-commerce</span><span class="ticker-dot">&middot;</span>
+  </div>
+</div>
 
 <!-- ═══ TICKER ═══ -->
 <div class="ticker">
