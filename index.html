@@ -408,13 +408,17 @@
     /* Stacking scroll (2026-10-18): each row sticks under the nav; the next row slides over it, leaving number + name visible */
     @media(min-width:901px){
       .sv-list{border-top:none}
-      .sv{position:sticky;top:calc(52px + (var(--i) - 1) * 96px);min-height:calc(100vh - 52px);padding-top:1.6rem}
-      .sv-list .sv .sv-desc{margin-top:1.4rem}
+      .sv{--strip:72px;position:sticky;top:calc(52px + (var(--i) - 1) * var(--strip));min-height:calc(100vh - 52px);padding-top:1.1rem}
+      /* 2026-10-18: cap the render so the whole row fits under its pin point; rows 4-6 were clipped before the next row covered them */
+      .sv-list .sv .sv-visual{aspect-ratio:auto;height:clamp(150px,calc(100vh - 52px - (var(--i) - 1) * var(--strip) - 21rem),400px);margin-top:.25rem}
+      .sv-list .sv .sv-art{object-fit:cover}
+      .sv-list .sv .sv-chips{margin-top:0}
+      .sv-list .sv .sv-desc{margin-top:1rem}
       .sv:nth-child(1){--i:1}.sv:nth-child(2){--i:2}.sv:nth-child(3){--i:3}.sv:nth-child(4){--i:4}.sv:nth-child(5){--i:5}.sv:nth-child(6){--i:6}
       .sv-l{align-items:flex-start}
       .sv-list .sv .sv-dots{margin-top:.55rem;height:40px;width:96px}
-      .sv-list .sv .sv-num{font-size:clamp(2.4rem,3.4vw,3rem);line-height:.9;margin-top:.15rem}
-      .sv-list .sv .sv-name{font-size:clamp(1.5rem,2.2vw,1.9rem);line-height:1.1}
+      .sv-list .sv .sv-num{font-size:clamp(2.1rem,3vw,2.6rem);line-height:.9;margin-top:.1rem}
+      .sv-list .sv .sv-name{font-size:clamp(1.4rem,2vw,1.75rem);line-height:1.1}
       .sv-r{padding-top:.2rem}
     }
     .sv.seen{opacity:1;transform:none}
