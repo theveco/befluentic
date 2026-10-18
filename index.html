@@ -859,6 +859,10 @@
     @media (prefers-reduced-motion:reduce){.gb-bar{animation:none}}
     /* GEOMETRY CTA (closing) */
     .cta-geo{position:relative;overflow:hidden;background:var(--void);padding:clamp(5rem,9vw,8rem) var(--px)}
+    .cta-flow .gb-bars,.cta-flow .gb-shear{display:none}
+    .cta-flow .hero-canvas{background:var(--void)}
+    .cta-flow .gb-grid{z-index:1}
+    .cta-flow .cta-geo-scrim{background:radial-gradient(ellipse 82% 82% at 50% 62%,rgba(5,5,5,.25),rgba(5,5,5,.7))}
     .cta-geo-scrim{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse 82% 82% at 50% 62%,rgba(5,5,5,.42),rgba(5,5,5,.84))}
     .cta-geo-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center}
     .cta-geo-inner h2{font-weight:500;font-size:clamp(2.05rem,4vw,3.1rem);line-height:1.1;letter-spacing:-.03em;max-width:620px;margin-bottom:1rem}
@@ -1377,7 +1381,9 @@
 </section>
 
 <!-- ═══ CTA ═══ -->
-<section class="cta-geo">
+<section class="cta-geo cta-flow">
+  <!-- 2026-10-18: band background switched to the hero flow field per Ardi; bars/shears hidden via .cta-flow CSS -->
+  <canvas class="hero-canvas" id="flowfield3"></canvas>
   <div class="gb-grid"></div>
   <div class="gb-bars" id="gbBars"></div>
   <div class="gb-shear" style="left:24%"></div>
@@ -1602,6 +1608,7 @@
   }
   initFlow(document.getElementById('flowfield'));
   initFlow(document.getElementById('flowfield2'));
+  initFlow(document.getElementById('flowfield3'));
 })();
 </script>
 
