@@ -536,7 +536,8 @@
     .eg-tick{font-family:var(--m);font-size:.625rem;letter-spacing:.2em;color:rgba(10,10,10,.3);position:relative;padding-right:14px;transition:color .3s}
     .eg-tick::after{content:"";position:absolute;right:0;top:50%;width:8px;height:1px;background:rgba(10,10,10,.3);transition:width .3s,background .3s}
     .eg-tick.on{color:var(--ink)}.eg-tick.on::after{width:14px;background:var(--ink)}
-    @media(max-width:900px){.eg{grid-template-columns:1fr}.eg-pin,.eg-rail{display:none}.eg-step{min-height:auto;opacity:1;padding:2.5rem 0;border-top:1px solid var(--ink-12)}.eg-step:first-child{border-top:none}}
+    @media(max-width:900px){.eg{grid-template-columns:1fr}.eg-pin,.eg-rail{display:none}.eg-step{min-height:auto;opacity:1;padding:2.5rem 0;border-top:1px solid var(--ink-12)}.eg-step:first-child{border-top:none}
+      .eg-step .eg-pic{width:min(100%,360px);margin:0 auto .25rem}}
     @media(max-width:600px){.eg-pts{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){.eg-stack,.eg-card{transition:none}.eg-step{opacity:1}}
     /* ═══ LANDING EXTRAS ═══ */
@@ -1138,7 +1139,7 @@
 <section class="shift shift-stmt">
   <div class="shift-center">
     <span class="ey ey-dk">The Shift</span>
-    <h2>Most of the workday is repeat work.<br>It doesn't have to&nbsp;be.</h2>
+    <h2>Most of the workday is repeat work. <br>It doesn't have to&nbsp;be.</h2>
     <p>We find the work your people repeat, and make it run on its own: quietly, reliably, in the background. Your team keeps the decisions.</p>
   </div>
 </section>
@@ -1240,7 +1241,7 @@
 <section class="process process-dk" id="process">
   <div class="process-head process-head-r">
     <span class="ey">Our Process</span>
-    <h2>Four steps.<br>From bottleneck to <span class="hl">hands-off</span>.</h2>
+    <h2>Four steps. <br>From bottleneck to <span class="hl">hands-off</span>.</h2>
   </div>
   <div class="pgrid">
     <div class="ps"><span class="ps-num">01.</span><h3 class="ps-name">Diagnose.</h3><p class="ps-desc">We map your data, workflows, and bottlenecks to find what's worth automating.</p></div>
@@ -1264,7 +1265,7 @@
 <section class="engage engage-sc" id="engagement">
   <div class="engage-head">
     <span class="ey">How an Engagement Runs</span>
-    <h2>We don't ask you to trust us.<br>We ask you to&nbsp;measure.</h2>
+    <h2>We don't ask you to trust us. <br>We ask you to&nbsp;measure.</h2>
   </div>
   <div class="eg">
     <div class="eg-steps">
@@ -1525,6 +1526,15 @@
     window.__egMode=function(m){ if(m===cur) return; var snap=cur<0; cur=m; target(m,snap); if(reduce) draw(); };
     size(); window.__egMode(mode); draw(); addEventListener('resize',size);
     if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ es.forEach(function(e){ e.isIntersecting?start():stop(); }); },{threshold:.05}).observe(c); } else start();
+  })();
+  // narrow viewports: each stage carries its own render (moved, not duplicated)
+  (function(){
+    var mq=window.matchMedia('(max-width:900px)'), stacks=Array.prototype.slice.call(document.querySelectorAll('.eg-stack'));
+    function place(){ stacks.forEach(function(st){ var pic=st.querySelector('.eg-pic')||document.querySelector('.eg-step[data-i="'+st.getAttribute('data-i')+'"] .eg-pic'); if(!pic) return;
+      var step=steps[parseInt(st.getAttribute('data-i'),10)];
+      if(mq.matches){ if(pic.parentNode!==step) step.insertBefore(pic, step.firstChild); }
+      else if(pic.parentNode!==st) st.appendChild(pic); }); }
+    place(); if(mq.addEventListener) mq.addEventListener('change',place); else mq.addListener(place);
   })();
   set(0);
   if(!('IntersectionObserver' in window)){ steps.forEach(function(s){ s.classList.add('on'); }); return; }
