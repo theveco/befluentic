@@ -546,6 +546,18 @@
       .eg-step .eg-pic{width:min(100%,360px);margin:0 auto .25rem}}
     @media(max-width:600px){.eg-pts{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){.eg-stack,.eg-card{transition:none}.eg-step{opacity:1}}
+    /* ═══ PHILOSOPHY, compression field (2026-10-18) ═══ */
+    .alead-cf{overflow:hidden}
+    .alead-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(2rem,4vw,4rem);align-items:center}
+    .alead-cf .ey{display:block;margin-bottom:1.5rem}
+    .alead-cf h2{max-width:640px}
+    .alead-vis{position:relative;height:clamp(360px,56vh,620px);border-left:1px solid var(--bone-06)}
+    .alead-vis canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .alead-cap{position:absolute;font-family:var(--m);font-size:.575rem;letter-spacing:.22em;color:var(--bone-60)}
+    .alead-cap-r{right:0;top:0}
+    .alead-cap-l{left:1rem;bottom:0}
+    @media(max-width:900px){.alead-grid{grid-template-columns:1fr}.alead-vis{height:280px;border-left:0;border-top:1px solid var(--bone-06);margin-top:1rem}}
+    @media(prefers-reduced-motion:reduce){.alead-vis canvas{display:none}}
     /* ═══ LANDING EXTRAS ═══ */
     html{scroll-padding-top:60px}
     /* PROOF (inline case) */
@@ -1340,19 +1352,23 @@
 </section>
 
 <!-- ═══ ABOUT — OPERATIONAL PHILOSOPHY ═══ -->
-<section class="alead" id="about">
-  <img class="alead-overlay" src="operational-philosophy-compression-field.png" alt="" aria-hidden="true">
-  <span class="ey">The Operational Philosophy</span>
-  <h2>Founded out of a refusal to accept the compounding misery of repetitive human&nbsp;labor.</h2>
-  <blockquote class="philo-quote">We start on the operational floor, whether that's the order desk, the back office, or the service counter.</blockquote>
-  <!-- SECOND PHILOSOPHY PARAGRAPH REMOVED 2026-08-14 (Ardi's call): vertical-sequence
-       model retired in favor of generalist entry; sentence also implied multi-vertical
-       track record. No replacement without Ardi's approval. -->
-  <div class="twocol twocol-single">
-    <p>We sit next to the operators, map the friction, and engineer the system that takes the work over. A manual, multi-hour grind is crushed into a single automated execution.</p>
-  </div>
-  <div class="twocol twocol-single">
-    <p>Fluentic (befluentic.com) is based in Prishtina, Kosovo. We deploy AI agents into the operations a business already runs: quoting, procurement, inventory, support, invoicing, reconciliation. Every engagement starts with a paid, fixed-scope audit; then we build, deploy, and stay on to run what we built. Your team keeps the decisions.</p>
+<section class="alead alead-cf" id="about">
+  <!-- 2026-10-18: compression field canvas replaces the static overlay PNG; "We sit next to the operators" paragraph carried by the animation (text kept in comment below) -->
+  <div class="alead-grid">
+    <div class="alead-txt">
+      <span class="ey">The Operational Philosophy</span>
+      <h2>Founded out of a refusal to accept the compounding misery of repetitive human&nbsp;labor.</h2>
+      <blockquote class="philo-quote">Before anything is built, we watch the work being&nbsp;done.</blockquote>
+      <!-- Removed from view 2026-10-18 (mockup): "We sit next to the operators, map the friction, and engineer the system that takes the work over. A manual, multi-hour grind is crushed into a single automated execution." -->
+      <div class="twocol twocol-single">
+        <p>Fluentic (befluentic.com) is based in Prishtina, Kosovo. We study how a business really runs, find the work that keeps repeating, and replace it with systems that run on their own. We build them, launch them, and stay to keep them running.</p>
+      </div>
+    </div>
+    <div class="alead-vis" aria-hidden="true">
+      <canvas id="cfield"></canvas>
+      <span class="alead-cap alead-cap-r">MANY MANUAL STEPS</span>
+      <span class="alead-cap alead-cap-l">ONE EXECUTION</span>
+    </div>
   </div>
 </section>
 
@@ -1546,6 +1562,46 @@
   if(!('IntersectionObserver' in window)){ steps.forEach(function(s){ s.classList.add('on'); }); return; }
   var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting) set(parseInt(e.target.getAttribute('data-i'),10)); }); },{rootMargin:'-45% 0px -45% 0px',threshold:0});
   steps.forEach(function(s){ io.observe(s); });
+})();
+</script>
+
+
+<script>
+/* Philosophy: compression field. Many thin lines flow in from the right and are pulled into one block; one line leaves it. */
+(function(){
+  var c=document.getElementById('cfield'); if(!c) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches; if(reduce) return;
+  var ctx=c.getContext('2d'), DPR=Math.min(devicePixelRatio||1,2), W=0,H=0,t=0,raf=null, lanes=[], outs=[];
+  var N=26;
+  function size(){ var r=c.getBoundingClientRect(); W=r.width; H=r.height; c.width=W*DPR; c.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); build(); }
+  function block(){ var bw=Math.min(72,W*.12), bh=Math.min(150,H*.3); return {x:W*.26, y:H/2-bh/2, w:bw, h:bh, sh:Math.tan(22*Math.PI/180)*bh}; }
+  function build(){ lanes=[]; var b=block(); for(var i=0;i<N;i++){ var y0=H*.06+ (H*.88)*(i/(N-1)); var ty=b.y+b.h*.08+b.h*.84*(i/(N-1));
+      lanes.push({y0:y0, ty:ty, cx1:W*.78, cx2:b.x+b.w+W*.16, dots:[{p:Math.random(),s:.0022+Math.random()*.002,a:.35+Math.random()*.5}, {p:Math.random(),s:.0022+Math.random()*.002,a:.35+Math.random()*.5}]}); }
+    outs=[{p:0.2},{p:0.7}]; }
+  function pt(l,u,b){ // cubic bezier from (W,y0) to (b.x+b.w, ty)
+    var x0=W, y0=l.y0, x3=b.x+b.w+b.sh*((b.y+b.h-l.ty)/b.h)-b.sh, y3=l.ty, x1=l.cx1, y1=y0, x2=l.cx2, y2=y3, v=1-u;
+    return [v*v*v*x0+3*v*v*u*x1+3*v*u*u*x2+u*u*u*x3, v*v*v*y0+3*v*v*u*y1+3*v*u*u*y2+u*u*u*y3]; }
+  function draw(){
+    ctx.clearRect(0,0,W,H); var b=block();
+    // lanes
+    ctx.lineWidth=1;
+    for(var i=0;i<lanes.length;i++){ var l=lanes[i]; ctx.strokeStyle='rgba(245,242,235,.10)'; ctx.beginPath(); var p0=pt(l,0,b); ctx.moveTo(p0[0],p0[1]); for(var k=1;k<=24;k++){ var p=pt(l,k/24,b); ctx.lineTo(p[0],p[1]); } ctx.stroke();
+      for(var d=0;d<l.dots.length;d++){ var dot=l.dots[d]; dot.p+=dot.s; if(dot.p>1){ dot.p=0; dot.a=.35+Math.random()*.5; } var q=pt(l,dot.p,b); var tail=pt(l,Math.max(0,dot.p-.03),b);
+        ctx.strokeStyle='rgba(245,242,235,'+(dot.a*(0.4+0.6*dot.p)).toFixed(3)+')'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(tail[0],tail[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); ctx.lineWidth=1; } }
+    // block (sheared 22deg)
+    ctx.fillStyle='#0A0A0A'; ctx.strokeStyle='rgba(245,242,235,.85)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(b.x+b.sh,b.y); ctx.lineTo(b.x+b.w+b.sh,b.y); ctx.lineTo(b.x+b.w,b.y+b.h); ctx.lineTo(b.x,b.y+b.h); ctx.closePath(); ctx.fill(); ctx.stroke();
+    var pulse=.5+.5*Math.sin(t*.06); ctx.fillStyle='rgba(245,242,235,'+(.08+pulse*.18).toFixed(3)+')'; ctx.fill();
+    // single output line to the left
+    var oy=b.y+b.h/2, ox=b.x+b.sh/2; ctx.strokeStyle='rgba(245,242,235,.35)'; ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(ox,oy); ctx.stroke();
+    for(var o=0;o<outs.length;o++){ var op=outs[o]; op.p+=.006; if(op.p>1) op.p=0; var x=ox-(ox)*op.p; ctx.fillStyle='rgba(245,242,235,.95)'; ctx.fillRect(x-7,oy-1.5,14,3); }
+    // terminal mark
+    ctx.fillStyle='rgba(245,242,235,.9)'; ctx.fillRect(0,oy-6,2,12);
+  }
+  function loop(){ t++; draw(); raf=requestAnimationFrame(loop); }
+  function start(){ if(!raf) raf=requestAnimationFrame(loop); } function stop(){ if(raf){ cancelAnimationFrame(raf); raf=null; } }
+  size(); draw(); addEventListener('resize',size);
+  if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ es.forEach(function(e){ e.isIntersecting?start():stop(); }); },{threshold:.05}).observe(c); } else start();
 })();
 </script>
 
