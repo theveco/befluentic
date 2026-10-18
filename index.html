@@ -834,7 +834,6 @@
     @media(prefers-reduced-motion:reduce){.rc-anim{animation:none}.rc-fill{transition:none}}
     /* CUSTOM CURSOR (dot + trailing ring) */
     @media (hover:hover) and (pointer:fine){
-      body.cur-on, body.cur-on *{cursor:none}
       body.cur-on input, body.cur-on textarea{cursor:text}
     }
     .cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;mix-blend-mode:difference;opacity:0;transition:opacity .3s ease;will-change:transform}
@@ -1832,8 +1831,8 @@
 
 
 <script>
-/* Custom cursor — dot + trailing ring */
-(function(){
+/* Custom cursor removed 2026-10-18 per Ardi (native cursor). Restore: delete the next line. */
+if(false)(function(){
   if(!window.matchMedia || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var dot = document.createElement('div'); dot.className = 'cur-dot';
