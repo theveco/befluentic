@@ -179,8 +179,10 @@
     .file-r{display:flex;flex-direction:column}
     .file-block{padding:1.4rem 0;border-top:1px solid var(--bone-06);display:grid;grid-template-columns:170px 1fr;gap:1rem 2rem;align-items:start}
     .file-block:first-child{border-top:none;padding-top:0}
-    .file-block:first-child .file-k{padding-top:0}
-    .file-block:first-child p{margin-top:-.3rem}
+    .file-block:first-child .file-k{padding-top:.45rem}
+    .file-block:first-child p{margin-top:0}
+    .file-r{padding-top:calc(.6875rem * 1.25 + .9rem)} /* index line + its margin, so the first label sits on the sector title line */
+    @media(max-width:900px){.file-r{padding-top:0}}
     .file-k{font-family:var(--m);font-size:.625rem;text-transform:uppercase;letter-spacing:.18em;color:var(--bone-40);padding-top:.35rem}
     .file-block p{font-size:1rem;line-height:1.7;color:var(--bone-80);max-width:620px}
     .file-block-diff p{color:var(--bone);font-weight:500}
