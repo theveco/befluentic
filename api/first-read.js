@@ -36,9 +36,9 @@ async function start(req, res) {
   }
 
   // Nothing with obvious personal identifiers is stored or sent on.
-  if (L.personal(reply !== null ? reply : input)) {
-    return L.send(res, 422, { error: 'personal_details' });
-  }
+  const fresh = reply !== null ? reply : input;
+  if (L.personal(fresh)) return L.send(res, 422, { error: 'personal_details' });
+  if (L.unsafeTarget(fresh)) return L.send(res, 422, { error: 'unsupported_address' });
 
   // Limits are checked before anything is spent. If the store is down the
   // relay refuses, so a run can never start without the cap in force.
@@ -55,6 +55,12 @@ async function start(req, res) {
     return L.send(res, 429, { error: 'daily_cap' });
   }
 
+  // Each read answers one reply, so a conversation is a chain the turn limit
+  // can count, not a fan of replies to the same read.
+  if (reply !== null && !(await L.claim('fr:replied:' + b.id, c.jobTtl))) {
+    return L.send(res, 409, { error: 'already_replied' });
+  }
+
   const id = L.newId();
   const token = L.newToken();
   const job = {
@@ -65,7 +71,7 @@ async function start(req, res) {
 
   let ok = false;
   try {
-    const r = await fetch(c.webhookUrl, {
+    const r = await L.outbound(c.webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -80,7 +86,7 @@ async function start(req, res) {
         reply,
       }),
     });
-    ok = r.status === 202 || r.status === 200;
+    ok = r.ok;
   } catch (e) {
     ok = false;
   }
@@ -91,6 +97,7 @@ async function start(req, res) {
     job.reason = 'upstream';
     job.tokenHash = null;
     await L.putJob(job);
+    if (reply !== null) await L.redis(['DEL', 'fr:replied:' + b.id]);
     return L.send(res, 502, { id, status: 'done', result: job.result, reason: 'upstream' });
   }
   return L.send(res, 202, { id, status: 'pending' });
@@ -107,6 +114,8 @@ async function poll(req, res) {
   if (!job) return L.send(res, 404, { error: 'not_found' });
   if (job.status === 'pending') {
     if (Date.now() - job.created > c.timeoutMs) {
+      // If the agent's result is landing at this very moment, let it win.
+      if (!(await L.claim('fr:closed:' + id, c.jobTtl))) return L.send(res, 200, { id, status: 'pending' });
       job.status = 'done';
       job.result = L.errorResult();
       job.reason = 'timeout';

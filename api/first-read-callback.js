@@ -22,6 +22,9 @@ module.exports = async (req, res) => {
     if (job.status !== 'pending' || !job.tokenHash) return L.send(res, 409, { error: 'already_closed' });
     if (!L.safeEqual(L.sha(b.token), job.tokenHash)) return L.send(res, 403, { error: 'forbidden' });
 
+    // Closed exactly once: a second callback, or one racing the timeout, stops here.
+    if (!(await L.claim('fr:closed:' + job.id, c.jobTtl))) return L.send(res, 409, { error: 'already_closed' });
+
     const result = L.validateResult(b.result, c);
     job.status = 'done';
     job.tokenHash = null;
