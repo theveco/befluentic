@@ -3,6 +3,7 @@
 // api/_lib are not routed.
 const crypto = require('crypto');
 const dns = require('dns');
+const TAKEN_DOWN = require('./blocked').map((d) => String(d).trim().toLowerCase()).filter(Boolean);
 
 const ERROR_TEXT = "We couldn't read that site.";
 const ID_RE = /^[a-f0-9]{32}$/;
@@ -53,8 +54,9 @@ function cfg() {
     jobTtl: 3600,
     blocklist: list(env.SCAN_BLOCKLIST, ''),
     // Domains that are never scanned or served. Fluentic's own site is always on
-    // the list; a company that disputes its scan is added here to take it down.
-    blockedDomains: ['befluentic.com'].concat(list(env.SCAN_BLOCKED_DOMAINS, '')),
+    // the list. A company that disputes its scan is added to blocked.js (or to
+    // SCAN_BLOCKED_DOMAINS in the project settings) to take it down.
+    blockedDomains: ['befluentic.com'].concat(TAKEN_DOWN, list(env.SCAN_BLOCKED_DOMAINS, '')),
   };
 }
 
