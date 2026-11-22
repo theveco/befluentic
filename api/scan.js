@@ -1,28 +1,12 @@
 'use strict';
 // Opportunity Scanner scan service.
-//   POST /api/scan  { domain, visitor }   ask for a scan
-//   GET  /api/scan?id=...                 poll a scan that is running
-//   GET  /api/scan?visitor=...            does this browser already have a scan?
-//   DELETE /api/scan?visitor=...          forget this browser (the company scan stays)
-// "visitor" is a random identifier the page keeps in the browser. One scan per
-// visitor: a returning visitor gets the scan they were shown, whatever they
-// type. A domain scanned before is answered from the saved result.
+//   POST /api/scan  { domain }     ask for a scan
+//   GET  /api/scan?id=...          poll a scan that is running
+// No visitor is recognised and nothing is kept in the visitor's browser. A
+// domain scanned before is answered from the saved result; fresh runs are
+// limited per network address and by a daily cap.
 // The booking button is a plain link. Nothing is sent anywhere on that click.
 const L = require('./_lib/scan');
-
-// What this browser was already shown, if anything.
-async function saved(visitor) {
-  if (!visitor) return null;
-  const domain = await L.redis(['GET', 'sc:vis:' + visitor]);
-  if (!domain) return null;
-  const result = await L.getJson('sc:dom:' + domain);
-  if (result) return { status: 'done', result, returning: true };
-  const id = await L.redis(['GET', 'sc:pend:' + domain]);
-  if (id) return { id, status: 'pending', returning: true };
-  // The scan failed or has expired: the visitor has not had their one scan.
-  await L.redis(['DEL', 'sc:vis:' + visitor]);
-  return null;
-}
 
 async function start(req, res) {
   const c = L.cfg();
@@ -32,28 +16,19 @@ async function start(req, res) {
 
   const b = L.body(req);
   if (!b || typeof b.domain !== 'string') return L.send(res, 400, { error: 'bad_request' });
-  if (b.visitor !== undefined && (typeof b.visitor !== 'string' || !L.ID_RE.test(b.visitor))) {
-    return L.send(res, 400, { error: 'bad_request' });
-  }
-  const visitor = b.visitor || null;
   const domain = L.parseDomain(b.domain);
   if (!domain) return L.send(res, 422, { error: 'not_a_domain' });
   if (c.blockedDomains.some((d) => domain === d || domain.endsWith('.' + d))) {
     return L.send(res, 422, { error: 'unsupported_domain' });
   }
 
-  // 1. One scan per visitor.
-  const mine = await saved(visitor);
-  if (mine) return L.send(res, mine.status === 'done' ? 200 : 202, mine);
-
-  // 2. A domain scanned before, or being scanned right now, costs nothing.
-  const link = async () => { if (visitor) await L.redis(['SET', 'sc:vis:' + visitor, domain, 'EX', c.keepSeconds]); };
+  // 1. A domain scanned before, or being scanned right now, costs nothing.
   const known = await L.getJson('sc:dom:' + domain);
-  if (known) { await link(); return L.send(res, 200, { status: 'done', result: known, cached: true }); }
+  if (known) return L.send(res, 200, { status: 'done', result: known, cached: true });
   const running = await L.redis(['GET', 'sc:pend:' + domain]);
-  if (running) { await link(); return L.send(res, 202, { id: running, status: 'pending' }); }
+  if (running) return L.send(res, 202, { id: running, status: 'pending' });
 
-  // 3. A fresh run. The name must resolve to public addresses only.
+  // 2. A fresh run. The name must resolve to public addresses only.
   const where = await L.reach(domain);
   if (where === 'private') return L.send(res, 422, { error: 'unsupported_domain' });
   if (where !== 'ok') return L.send(res, 422, { error: 'unreachable_domain' });
@@ -79,14 +54,12 @@ async function start(req, res) {
       // No run of our own after all, so hand both counts back.
       await L.redis(['DECR', ipKey]);
       await L.redis(['DECR', 'sc:cap:' + day]);
-      await link();
       return L.send(res, 202, { id: other, status: 'pending' });
     }
     await L.redis(['SET', 'sc:pend:' + domain, id, 'EX', pendTtl]);
   }
   const job = { id, status: 'pending', created: Date.now(), domain, tokenHash: L.sha(token), result: null, reason: null };
   await L.putJob(job);
-  await link();
 
   let ok = false; let unsure = false;
   try {
@@ -109,34 +82,19 @@ async function start(req, res) {
     job.tokenHash = null;
     await L.putJob(job);
     await L.release(domain, id);
-    if (visitor) await L.redis(['DEL', 'sc:vis:' + visitor]);
     return L.send(res, 502, { id, status: 'done', result: job.result, reason: 'upstream' });
   }
   return L.send(res, 202, { id, status: 'pending' });
 }
 
-async function look(req, res) {
+async function poll(req, res) {
   const c = L.cfg();
   if (!L.configured(c)) return L.send(res, 503, { error: 'not_configured' });
   // While closed, strangers cannot make this route touch the store at all.
   if (!L.allowed(req, c)) return L.send(res, 403, { error: 'closed' });
-  const q = req.query || {};
-
-  if (req.method === 'DELETE') {
-    if (!L.sameOrigin(req)) return L.send(res, 403, { error: 'forbidden' });
-    if (typeof q.visitor !== 'string' || !L.ID_RE.test(q.visitor)) return L.send(res, 400, { error: 'bad_request' });
-    await L.redis(['DEL', 'sc:vis:' + q.visitor]);
-    return L.send(res, 200, { ok: true, status: 'none' });
-  }
-
-  if (q.visitor !== undefined) {
-    if (typeof q.visitor !== 'string' || !L.ID_RE.test(q.visitor)) return L.send(res, 400, { error: 'bad_request' });
-    const mine = await saved(q.visitor);
-    return L.send(res, 200, mine || { status: 'none' });
-  }
-
-  if (typeof q.id !== 'string' || !L.ID_RE.test(q.id)) return L.send(res, 400, { error: 'bad_request' });
-  const job = await L.getJob(q.id);
+  const id = req.query && req.query.id;
+  if (typeof id !== 'string' || !L.ID_RE.test(id)) return L.send(res, 400, { error: 'bad_request' });
+  const job = await L.getJob(id);
   if (!job) return L.send(res, 404, { error: 'not_found' });
   if (job.status === 'pending') {
     if (Date.now() - job.created <= c.timeoutMs) return L.send(res, 200, { id: job.id, status: 'pending' });
@@ -157,8 +115,8 @@ async function look(req, res) {
 module.exports = async (req, res) => {
   try {
     if (req.method === 'POST') return await start(req, res);
-    if (req.method === 'GET' || req.method === 'DELETE') return await look(req, res);
-    res.setHeader('Allow', 'GET, POST, DELETE');
+    if (req.method === 'GET') return await poll(req, res);
+    res.setHeader('Allow', 'GET, POST');
     return L.send(res, 405, { error: 'method_not_allowed' });
   } catch (e) {
     return L.send(res, 503, { error: 'unavailable' });

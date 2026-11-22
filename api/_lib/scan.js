@@ -42,12 +42,11 @@ function cfg() {
     // Fresh agent runs per day across all visitors. Tracks daily spend: the
     // dearest run measured so far cost $0.30, so 20 runs is at most about $6.
     dailyCap: int(env.SCAN_DAILY_CAP, 20),
-    // Fresh agent runs per network address per day. The browser identifier is
-    // what recognises a visitor; this only stops someone clearing it to scan
-    // again and again. Saved results do not count, so colleagues in one office
-    // who enter the same domain are not held back.
+    // Fresh agent runs per network address per day. This is the only per-visitor
+    // limit: no browser identifier is used. Saved results do not count, so
+    // colleagues in one office who enter the same domain are not held back.
     perIpDay: int(env.SCAN_PER_IP_DAY, 3),
-    // How long a finished scan and the visitor's link to it are kept.
+    // How long a finished scan is kept, counted from the day it was made.
     keepSeconds: int(env.SCAN_KEEP_DAYS, 30, 1) * 86400,
     // Measured runs took 17 to 24 seconds. The live route adds one step.
     timeoutMs: int(env.SCAN_TIMEOUT_SECONDS, 120, 30) * 1000,
