@@ -1,0 +1,176 @@
+'use strict';
+// Shared helpers for the First Read relay. Files under api/_lib are not routed.
+const crypto = require('crypto');
+
+const ERROR_TEXT = "We couldn't read that site. Describe your business in one line instead.";
+const ID_RE = /^[a-f0-9]{32}$/;
+
+function int(v, d) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) && n > 0 ? n : d;
+}
+
+function cfg() {
+  const env = process.env;
+  let baseUrl = env.FIRST_READ_BASE_URL || '';
+  if (!baseUrl) {
+    // The apex befluentic.com redirects to www, so production callbacks go to www.
+    baseUrl = env.VERCEL_ENV === 'production' || !env.VERCEL_URL
+      ? 'https://www.befluentic.com'
+      : 'https://' + env.VERCEL_URL;
+  }
+  return {
+    redisUrl: (env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL || '').replace(/\/+$/, ''),
+    redisToken: env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN || '',
+    webhookUrl: env.FIRST_READ_WEBHOOK_URL || '',
+    webhookSecret: env.FIRST_READ_WEBHOOK_SECRET || '',
+    baseUrl: baseUrl.replace(/\/+$/, ''),
+    formspreeUrl: env.FIRST_READ_FORMSPREE_URL || 'https://formspree.io/f/mqeopyzl',
+    // Provisional limits. Daily cap tracks credit spend per day and stays low
+    // until the cost of one run is measured. Per-visitor limit tracks one
+    // session: a read plus up to two replies, twice an hour.
+    dailyCap: int(env.FIRST_READ_DAILY_CAP, 50),
+    perIpHour: int(env.FIRST_READ_PER_IP_HOUR, 6),
+    perIpDay: int(env.FIRST_READ_PER_IP_DAY, 12),
+    maxTurns: int(env.FIRST_READ_MAX_TURNS, 4),
+    timeoutMs: int(env.FIRST_READ_TIMEOUT_SECONDS, 150) * 1000,
+    jobTtl: 3600,
+    blocklist: (env.FIRST_READ_BLOCKLIST || '')
+      .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
+  };
+}
+
+function configured(c) {
+  return Boolean(c.redisUrl && c.redisToken && c.webhookUrl && c.webhookSecret);
+}
+
+async function redis(cmd) {
+  const c = cfg();
+  const r = await fetch(c.redisUrl, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + c.redisToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(cmd),
+  });
+  if (!r.ok) throw new Error('store_http_' + r.status);
+  const j = await r.json();
+  if (j && j.error) throw new Error('store_error');
+  return j ? j.result : null;
+}
+
+async function getJob(id) {
+  const raw = await redis(['GET', 'fr:job:' + id]);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
+async function putJob(job) {
+  await redis(['SET', 'fr:job:' + job.id, JSON.stringify(job), 'EX', cfg().jobTtl]);
+}
+
+// Counter with a fixed window. Returns the count after this hit.
+async function hit(key, ttlSeconds) {
+  const n = await redis(['INCR', key]);
+  if (n === 1) await redis(['EXPIRE', key, ttlSeconds]);
+  return n;
+}
+
+function sha(s) {
+  return crypto.createHash('sha256').update(String(s)).digest('hex');
+}
+
+function safeEqual(a, b) {
+  const x = Buffer.from(String(a));
+  const y = Buffer.from(String(b));
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+}
+
+function clientKey(req, c) {
+  const h = req.headers || {};
+  const ip = String(h['x-real-ip'] || h['x-forwarded-for'] || 'unknown').split(',')[0].trim();
+  // Only a keyed hash of the address is stored, never the address itself.
+  return crypto.createHmac('sha256', c.webhookSecret).update(ip).digest('hex').slice(0, 32);
+}
+
+function body(req) {
+  let b = req.body;
+  if (typeof b === 'string') {
+    if (b.length > 20000) return null;
+    try { b = JSON.parse(b); } catch (e) { return null; }
+  }
+  return b && typeof b === 'object' && !Array.isArray(b) ? b : null;
+}
+
+function cleanStr(v, max) {
+  if (typeof v !== 'string') return null;
+  const s = v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+  return s && s.length <= max ? s : null;
+}
+
+function sameOrigin(req) {
+  const h = req.headers || {};
+  if (!h.origin) return true; // server-side callers carry no Origin; limits still apply
+  try {
+    const host = new URL(h.origin).host;
+    return host === h.host || host === 'befluentic.com' || host === 'www.befluentic.com';
+  } catch (e) {
+    return false;
+  }
+}
+
+function items(a) {
+  if (!Array.isArray(a) || a.length !== 3) return null;
+  const out = [];
+  for (const it of a) {
+    if (!it || typeof it !== 'object') return null;
+    const name = cleanStr(it.name, 160);
+    const text = cleanStr(it.text, 1200);
+    if (!name || !text) return null;
+    out.push({ name, text });
+  }
+  return out;
+}
+
+// Returns the agent's object reduced to the agreed fields, or null if it does
+// not match one of the three shapes.
+function validateResult(x, c) {
+  if (typeof x === 'string') {
+    try { x = JSON.parse(x); } catch (e) { return null; }
+  }
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
+  let out = null;
+  if (x.type === 'read') {
+    const company = cleanStr(x.company, 160);
+    const description = cleanStr(x.description, 1500);
+    const bottlenecks = items(x.bottlenecks);
+    const actions = items(x.actions);
+    if (company && description && bottlenecks && actions) {
+      out = { type: 'read', company, description, bottlenecks, actions };
+    }
+  } else if (x.type === 'question' || x.type === 'error') {
+    const text = cleanStr(x.text, 600);
+    if (text) out = { type: x.type, text };
+  }
+  if (!out) return null;
+  if (c.blocklist.length) {
+    const hay = JSON.stringify(out).toLowerCase();
+    if (c.blocklist.some((w) => hay.includes(w))) return null;
+  }
+  return out;
+}
+
+function errorResult() {
+  return { type: 'error', text: ERROR_TEXT };
+}
+
+function send(res, status, obj) {
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Robots-Tag', 'noindex');
+  return res.status(status).json(obj);
+}
+
+module.exports = {
+  ID_RE, cfg, configured, redis, getJob, putJob, hit, sha, safeEqual, clientKey,
+  body, cleanStr, sameOrigin, validateResult, errorResult, send,
+  newId: () => crypto.randomBytes(16).toString('hex'),
+  newToken: () => crypto.randomBytes(32).toString('hex'),
+};
