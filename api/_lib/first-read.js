@@ -4,6 +4,8 @@ const crypto = require('crypto');
 
 const ERROR_TEXT = "We couldn't read that site. Describe your business in one line instead.";
 const ID_RE = /^[a-f0-9]{32}$/;
+// SHA-256 of the private test key. The key itself is not in this repo.
+const TEST_KEY_SHA256 = 'd5660b083821fa22ac6cff55fd60cb3b4f677b901f96d33cc7ad542b7d12259b';
 
 function int(v, d) {
   const n = parseInt(v, 10);
@@ -25,6 +27,8 @@ function cfg() {
     webhookUrl: env.FIRST_READ_WEBHOOK_URL || '',
     webhookSecret: env.FIRST_READ_WEBHOOK_SECRET || '',
     baseUrl: baseUrl.replace(/\/+$/, ''),
+    // Closed by default. Visitors are let in only when FIRST_READ_PUBLIC is "1".
+    isPublic: env.FIRST_READ_PUBLIC === '1',
     formspreeUrl: env.FIRST_READ_FORMSPREE_URL || 'https://formspree.io/f/mqeopyzl',
     // Provisional limits. Daily cap tracks credit spend per day and stays low
     // until the cost of one run is measured. Per-visitor limit tracks one
@@ -89,6 +93,13 @@ function clientKey(req, c) {
   const ip = String(h['x-real-ip'] || h['x-forwarded-for'] || 'unknown').split(',')[0].trim();
   // Only a keyed hash of the address is stored, never the address itself.
   return crypto.createHmac('sha256', c.webhookSecret).update(ip).digest('hex').slice(0, 32);
+}
+
+// While the relay is not public, only a caller holding the test key gets in.
+function allowed(req, c) {
+  if (c.isPublic) return true;
+  const k = (req.headers || {})['x-first-read-test'];
+  return typeof k === 'string' && k.length <= 200 && safeEqual(sha(k), TEST_KEY_SHA256);
 }
 
 function body(req) {
@@ -170,7 +181,7 @@ function send(res, status, obj) {
 
 module.exports = {
   ID_RE, cfg, configured, redis, getJob, putJob, hit, sha, safeEqual, clientKey,
-  body, cleanStr, sameOrigin, validateResult, errorResult, send,
+  allowed, body, cleanStr, sameOrigin, validateResult, errorResult, send,
   newId: () => crypto.randomBytes(16).toString('hex'),
   newToken: () => crypto.randomBytes(32).toString('hex'),
 };

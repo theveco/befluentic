@@ -21,6 +21,7 @@ module.exports = async (req, res) => {
     }
     const c = L.cfg();
     if (!L.configured(c)) return L.send(res, 503, { error: 'not_configured' });
+    if (!L.allowed(req, c)) return L.send(res, 403, { error: 'closed' });
     if (!L.sameOrigin(req)) return L.send(res, 403, { error: 'forbidden' });
 
     const b = L.body(req);
