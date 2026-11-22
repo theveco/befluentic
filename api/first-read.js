@@ -35,6 +35,11 @@ async function start(req, res) {
     if (!input || input.length < 3) return L.send(res, 400, { error: 'bad_request' });
   }
 
+  // Nothing with obvious personal identifiers is stored or sent on.
+  if (L.personal(reply !== null ? reply : input)) {
+    return L.send(res, 422, { error: 'personal_details' });
+  }
+
   // Limits are checked before anything is spent. If the store is down the
   // relay refuses, so a run can never start without the cap in force.
   const who = L.clientKey(req, c);

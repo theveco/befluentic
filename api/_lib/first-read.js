@@ -116,6 +116,19 @@ function cleanStr(v, max) {
   return s && s.length <= max ? s : null;
 }
 
+// Refuses text that carries obvious personal identifiers, before anything is
+// stored or forwarded. Pattern-based only: an email address, or a number long
+// enough to be a phone, card, account or ID number (9 or more digits, the
+// length of a local Kosovo mobile number). Web addresses are left out of the
+// number check. It cannot judge meaning; the agent's own rules cover that.
+function personal(text) {
+  if (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(text)) return true;
+  const rest = text.split(/\s+/)
+    .filter((t) => !/^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(:\d+)?([\/?#]\S*)?$/i.test(t))
+    .join(' ');
+  return /\+?\d(?:[\s().\/-]?\d){8,}/.test(rest);
+}
+
 function sameOrigin(req) {
   const h = req.headers || {};
   if (!h.origin) return true; // server-side callers carry no Origin; limits still apply
@@ -180,7 +193,7 @@ function send(res, status, obj) {
 
 module.exports = {
   ID_RE, cfg, configured, redis, getJob, putJob, hit, sha, safeEqual, clientKey,
-  allowed, body, cleanStr, sameOrigin, validateResult, errorResult, send,
+  allowed, body, cleanStr, personal, sameOrigin, validateResult, errorResult, send,
   newId: () => crypto.randomBytes(16).toString('hex'),
   newToken: () => crypto.randomBytes(32).toString('hex'),
 };
