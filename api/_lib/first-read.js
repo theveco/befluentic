@@ -14,13 +14,10 @@ function int(v, d) {
 
 function cfg() {
   const env = process.env;
-  let baseUrl = env.FIRST_READ_BASE_URL || '';
-  if (!baseUrl) {
-    // The apex befluentic.com redirects to www, so production callbacks go to www.
-    baseUrl = env.VERCEL_ENV === 'production' || !env.VERCEL_URL
-      ? 'https://www.befluentic.com'
-      : 'https://' + env.VERCEL_URL;
-  }
+  // The agent posts its result back to the live domain. Preview deployments sit
+  // behind Vercel's login, so the agent could never reach a preview address.
+  // The apex befluentic.com redirects to www, so www is used.
+  const baseUrl = env.FIRST_READ_BASE_URL || 'https://www.befluentic.com';
   return {
     redisUrl: (env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL || '').replace(/\/+$/, ''),
     redisToken: env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN || '',
@@ -28,8 +25,10 @@ function cfg() {
     webhookSecret: env.FIRST_READ_WEBHOOK_SECRET || '',
     baseUrl: baseUrl.replace(/\/+$/, ''),
     // Closed by default. Visitors are let in only when FIRST_READ_PUBLIC is "1".
-    isPublic: env.FIRST_READ_PUBLIC === '1',
-    formspreeUrl: env.FIRST_READ_FORMSPREE_URL || 'https://formspree.io/f/mqeopyzl',
+    // A preview deployment is also let in, for private testing: previews on
+    // this project are reachable only through Vercel's login. If that login
+    // wall is ever switched off, remove the preview clause.
+    isPublic: env.FIRST_READ_PUBLIC === '1' || env.VERCEL_ENV === 'preview',
     // Provisional limits. Daily cap tracks credit spend per day and stays low
     // until the cost of one run is measured. Per-visitor limit tracks one
     // session: a read plus up to two replies, twice an hour.

@@ -3,6 +3,7 @@
 //   POST /api/first-read  { input }            start a read
 //   POST /api/first-read  { id, reply }        correction, or answer to a question
 //   GET  /api/first-read?id=...                poll for the result
+// The booking button is a plain link. Nothing is sent anywhere on that click.
 const L = require('./_lib/first-read');
 
 async function start(req, res) {
