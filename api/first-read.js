@@ -99,6 +99,8 @@ async function start(req, res) {
 async function poll(req, res) {
   const c = L.cfg();
   if (!L.configured(c)) return L.send(res, 503, { error: 'not_configured' });
+  // While closed, strangers cannot make the relay touch the store at all.
+  if (!L.allowed(req, c)) return L.send(res, 403, { error: 'closed' });
   const id = req.query && req.query.id;
   if (typeof id !== 'string' || !L.ID_RE.test(id)) return L.send(res, 400, { error: 'bad_request' });
   const job = await L.getJob(id);

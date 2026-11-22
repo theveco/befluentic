@@ -129,6 +129,12 @@ function personal(text) {
   return /\+?\d(?:[\s().\/-]?\d){8,}/.test(rest);
 }
 
+// For text that came back from the agent. Angle brackets are dropped so the
+// text can never carry markup, whatever the page does with it.
+function cleanOut(v, max) {
+  return cleanStr(typeof v === 'string' ? v.replace(/[<>]/g, '') : v, max);
+}
+
 function sameOrigin(req) {
   const h = req.headers || {};
   if (!h.origin) return true; // server-side callers carry no Origin; limits still apply
@@ -145,8 +151,8 @@ function items(a) {
   const out = [];
   for (const it of a) {
     if (!it || typeof it !== 'object') return null;
-    const name = cleanStr(it.name, 160);
-    const text = cleanStr(it.text, 1200);
+    const name = cleanOut(it.name, 160);
+    const text = cleanOut(it.text, 1200);
     if (!name || !text) return null;
     out.push({ name, text });
   }
@@ -162,15 +168,15 @@ function validateResult(x, c) {
   if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
   let out = null;
   if (x.type === 'read') {
-    const company = cleanStr(x.company, 160);
-    const description = cleanStr(x.description, 1500);
+    const company = cleanOut(x.company, 160);
+    const description = cleanOut(x.description, 1500);
     const bottlenecks = items(x.bottlenecks);
     const actions = items(x.actions);
     if (company && description && bottlenecks && actions) {
       out = { type: 'read', company, description, bottlenecks, actions };
     }
   } else if (x.type === 'question' || x.type === 'error') {
-    const text = cleanStr(x.text, 600);
+    const text = cleanOut(x.text, 600);
     if (text) out = { type: x.type, text };
   }
   if (!out) return null;
