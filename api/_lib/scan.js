@@ -2,6 +2,7 @@
 // Shared helpers for the Opportunity Scanner scan service. Files under
 // api/_lib are not routed.
 const crypto = require('crypto');
+const dns = require('dns');
 
 const ERROR_TEXT = "We couldn't read that site.";
 const ID_RE = /^[a-f0-9]{32}$/;
@@ -52,7 +53,9 @@ function cfg() {
     timeoutMs: int(env.SCAN_TIMEOUT_SECONDS, 120, 30) * 1000,
     jobTtl: 3600,
     blocklist: list(env.SCAN_BLOCKLIST, ''),
-    blockedDomains: list(env.SCAN_BLOCKED_DOMAINS, 'befluentic.com'),
+    // Domains that are never scanned or served. Fluentic's own site is always on
+    // the list; a company that disputes its scan is added here to take it down.
+    blockedDomains: ['befluentic.com'].concat(list(env.SCAN_BLOCKED_DOMAINS, '')),
   };
 }
 
@@ -106,6 +109,12 @@ async function claim(key, value, ttlSeconds) {
   return (await redis(['SET', key, value, 'NX', 'EX', ttlSeconds])) === 'OK';
 }
 
+// Removes a domain's "running" marker only if it still belongs to this job, so
+// a late job can never clear the marker of the job that replaced it.
+function release(domain, id) {
+  return redis(['EVAL', "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0", '1', 'sc:pend:' + domain, id]);
+}
+
 function sha(s) {
   return crypto.createHash('sha256').update(String(s)).digest('hex');
 }
@@ -118,9 +127,16 @@ function safeEqual(a, b) {
 
 function clientKey(req, c) {
   const h = req.headers || {};
-  let ip = String(h['x-real-ip'] || h['x-forwarded-for'] || 'unknown').split(',')[0].trim();
-  // One IPv6 host usually owns a whole /64, so the limit is kept per /64.
-  if (ip.includes(':') && !ip.includes('.')) ip = ip.split(':').slice(0, 4).join(':');
+  let ip = String(h['x-real-ip'] || h['x-forwarded-for'] || 'unknown').split(',')[0].trim().toLowerCase();
+  // One IPv6 host usually owns a whole /64, so the limit is kept per /64. The
+  // address is written out in full first, so "::" shorthand cannot split it.
+  if (ip.includes(':') && !ip.includes('.')) {
+    const [head, tail] = ip.split('::');
+    const a = head ? head.split(':') : [];
+    const b = tail === undefined ? null : (tail ? tail.split(':') : []);
+    const all = b === null ? a : a.concat(Array(Math.max(0, 8 - a.length - b.length)).fill('0'), b);
+    ip = all.slice(0, 4).map((g) => g.replace(/^0+(?=.)/, '')).join(':');
+  }
   // Only a keyed hash of the address is stored, never the address itself.
   return crypto.createHmac('sha256', c.webhookSecret).update(ip).digest('hex').slice(0, 32);
 }
@@ -155,7 +171,11 @@ function cleanStr(v, max) {
 // second line of defence. The page must still insert this as plain text, never
 // as HTML, an attribute or a link.
 function cleanOut(v, max) {
-  return cleanStr(typeof v === 'string' ? v.replace(/[<>]/g, '') : v, max);
+  // Brackets are removed after normalising, so look-alike brackets go too.
+  const s = cleanStr(v, max);
+  if (!s) return null;
+  const t = s.replace(/[<>]/g, '').trim();
+  return t || null;
 }
 
 function sameOrigin(req) {
@@ -169,6 +189,45 @@ function sameOrigin(req) {
   }
 }
 
+const SECOND_LEVEL = ['co', 'com', 'net', 'org', 'gov', 'ac', 'edu', 'or', 'ne', 'go', 'mil', 'nom', 'info', 'biz'];
+const SHARED_HOSTS = ['github.io', 'gitlab.io', 'vercel.app', 'netlify.app', 'pages.dev', 'web.app', 'firebaseapp.com',
+  'herokuapp.com', 'azurewebsites.net', 'onrender.com', 'fly.dev', 'workers.dev', 'blogspot.com', 'wordpress.com',
+  'wixsite.com', 'weebly.com', 'squarespace.com', 'webflow.io', 'myshopify.com', 'carrd.co', 'framer.website',
+  'framer.app', 'notion.site', 'substack.com', 'medium.com', 'tumblr.com', 'godaddysites.com', 'business.site',
+  'sites.google.com', 'cloudfront.net', 'amazonaws.com', 'nip.io', 'sslip.io', 'xip.io', 'localtest.me', 'lvh.me'];
+
+function privateAddress(addr, family) {
+  const a = String(addr).toLowerCase();
+  if (family === 6 || a.includes(':')) {
+    const m = a.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    if (m) return privateAddress(m[1], 4);
+    return a === '::' || a === '::1' || /^f[cd]/.test(a) || /^fe[89ab]/.test(a) || /^ff/.test(a) || /^64:ff9b:/.test(a);
+  }
+  const o = a.split('.').map(Number);
+  if (o.length !== 4 || o.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return true;
+  const [x, y] = o;
+  return x === 0 || x === 10 || x === 127 || (x === 100 && y >= 64 && y <= 127) || (x === 169 && y === 254)
+    || (x === 172 && y >= 16 && y <= 31) || (x === 192 && (y === 168 || y === 0)) || (x === 198 && (y === 18 || y === 19)) || x >= 224;
+}
+
+// Looks the name up before any money is spent. "ok" only if it resolves and
+// every address is a public one, so a public name that points at a private or
+// this-machine address is never handed to the agent. A screen, not a
+// guarantee: the agent's own fetcher has the last word.
+async function reach(domain) {
+  let list;
+  try {
+    list = await Promise.race([
+      dns.promises.lookup(domain, { all: true }),
+      new Promise((_, no) => setTimeout(() => no(new Error('dns_timeout')), 3000)),
+    ]);
+  } catch (e) {
+    return 'none';
+  }
+  if (!Array.isArray(list) || !list.length) return 'none';
+  return list.some((x) => privateAddress(x.address, x.family)) ? 'private' : 'ok';
+}
+
 // The only thing a visitor can submit is a public company domain. Whatever is
 // typed is cut down to the bare host name: no path, query, port, login or
 // "www.". Returns null when it is not a public domain name.
@@ -179,13 +238,18 @@ function parseDomain(raw) {
   try { u = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : 'http://' + s); } catch (e) { return null; }
   if ((u.protocol !== 'http:' && u.protocol !== 'https:') || u.username || u.password) return null;
   let h = u.hostname.toLowerCase().replace(/\.$/, '');
-  if (h.startsWith('www.')) h = h.slice(4);
+  while (h.startsWith('www.')) h = h.slice(4);
   if (h.length < 4 || h.length > 253) return null;
   // Letters-only top level, so raw IP addresses and "localhost" never pass.
   if (!/^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{2,24}|xn--[a-z0-9-]{2,59})$/.test(h)) return null;
   if (/\.(local|internal|lan|home|corp|localdomain|localhost|test|example|invalid|onion|arpa)$/.test(h)) return null;
   // A label that is mostly a long number looks like a phone number, not a company.
   if (h.split('.').some((l) => (l.match(/\d/g) || []).length >= 9)) return null;
+  // A bare registry suffix ("co.uk") or a shared hosting suffix ("github.io")
+  // is not one company. A site hosted under one ("acme.github.io") is fine.
+  const labels = h.split('.');
+  if (labels.length === 2 && labels[1].length === 2 && SECOND_LEVEL.includes(labels[0])) return null;
+  if (SHARED_HOSTS.includes(h)) return null;
   return h;
 }
 
@@ -223,17 +287,20 @@ function validateScan(x, domain, c) {
     const t = s && cleanOut(s.t, 160);
     const u = s && cleanStr(s.u, 300);
     if (!t || !u) return null;
-    let host;
+    let host; let p;
     try {
-      const p = new URL(u);
+      p = new URL(u);
       if (p.protocol !== 'http:' && p.protocol !== 'https:') return null;
       if (p.username || p.password) return null;
       host = p.hostname.toLowerCase().replace(/^www\./, '');
     } catch (e) { return null; }
     // Every source must be a page on the company's own domain.
     if (host !== domain && !host.endsWith('.' + domain)) return null;
-    if (personal(t) || personal(u)) return null;
-    sources.push({ t, u });
+    // The link is kept in its normalised form and may carry nothing that could
+    // break out of a link on the page.
+    if (/["'<>`\s\\]/.test(p.href) || p.href.length > 300) return null;
+    if (personal(t) || personal(p.href)) return null;
+    sources.push({ t, u: p.href });
   }
   const n = sources.length;
 
@@ -306,7 +373,7 @@ function send(res, status, obj) {
 }
 
 module.exports = {
-  ID_RE, cfg, configured, outbound, redis, getJson, getJob, putJob, hit, claim, sha,
+  ID_RE, cfg, configured, outbound, redis, getJson, getJob, putJob, hit, claim, release, reach, privateAddress, sha,
   safeEqual, clientKey, allowed, body, cleanStr, sameOrigin, parseDomain, personal,
   validateScan, errorResult, send,
   newId: () => crypto.randomBytes(16).toString('hex'),

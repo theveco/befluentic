@@ -3,6 +3,7 @@
 //   POST /api/scan  { domain, visitor }   ask for a scan
 //   GET  /api/scan?id=...                 poll a scan that is running
 //   GET  /api/scan?visitor=...            does this browser already have a scan?
+//   DELETE /api/scan?visitor=...          forget this browser (the company scan stays)
 // "visitor" is a random identifier the page keeps in the browser. One scan per
 // visitor: a returning visitor gets the scan they were shown, whatever they
 // type. A domain scanned before is answered from the saved result.
@@ -52,10 +53,16 @@ async function start(req, res) {
   const running = await L.redis(['GET', 'sc:pend:' + domain]);
   if (running) { await link(); return L.send(res, 202, { id: running, status: 'pending' }); }
 
-  // 3. A fresh run. Limits are checked before anything is spent. If the store
-  //    is down the service refuses, so a run never starts without the cap.
+  // 3. A fresh run. The name must resolve to public addresses only.
+  const where = await L.reach(domain);
+  if (where === 'private') return L.send(res, 422, { error: 'unsupported_domain' });
+  if (where !== 'ok') return L.send(res, 422, { error: 'unreachable_domain' });
+
+  //    Limits are checked before anything is spent. If the store is down the
+  //    service refuses, so a run never starts without the cap.
   const day = new Date().toISOString().slice(0, 10);
-  if ((await L.hit('sc:ipd:' + day + ':' + L.clientKey(req, c), 90000)) > c.perIpDay) {
+  const ipKey = 'sc:ipd:' + day + ':' + L.clientKey(req, c);
+  if ((await L.hit(ipKey, 90000)) > c.perIpDay) {
     return L.send(res, 429, { error: 'rate_limited' });
   }
   if ((await L.hit('sc:cap:' + day, 90000)) > c.dailyCap) {
@@ -68,14 +75,20 @@ async function start(req, res) {
   if (!(await L.claim('sc:pend:' + domain, id, pendTtl))) {
     // Someone asked for the same domain in the same instant. Join their run.
     const other = await L.redis(['GET', 'sc:pend:' + domain]);
-    if (other) { await link(); return L.send(res, 202, { id: other, status: 'pending' }); }
+    if (other) {
+      // No run of our own after all, so hand both counts back.
+      await L.redis(['DECR', ipKey]);
+      await L.redis(['DECR', 'sc:cap:' + day]);
+      await link();
+      return L.send(res, 202, { id: other, status: 'pending' });
+    }
     await L.redis(['SET', 'sc:pend:' + domain, id, 'EX', pendTtl]);
   }
   const job = { id, status: 'pending', created: Date.now(), domain, tokenHash: L.sha(token), result: null, reason: null };
   await L.putJob(job);
   await link();
 
-  let ok = false;
+  let ok = false; let unsure = false;
   try {
     const r = await L.outbound(c.webhookUrl, {
       method: 'POST',
@@ -84,16 +97,18 @@ async function start(req, res) {
     });
     ok = r.ok;
   } catch (e) {
-    ok = false;
+    // No answer in time: the run may have been queued all the same. Leave the
+    // scan pending, so a retry cannot pay for the same run twice.
+    unsure = Boolean(e && (e.name === 'TimeoutError' || e.name === 'AbortError'));
   }
 
-  if (!ok) {
+  if (!ok && !unsure) {
     job.status = 'done';
     job.result = L.errorResult();
     job.reason = 'upstream';
     job.tokenHash = null;
     await L.putJob(job);
-    await L.redis(['DEL', 'sc:pend:' + domain]);
+    await L.release(domain, id);
     if (visitor) await L.redis(['DEL', 'sc:vis:' + visitor]);
     return L.send(res, 502, { id, status: 'done', result: job.result, reason: 'upstream' });
   }
@@ -103,9 +118,16 @@ async function start(req, res) {
 async function look(req, res) {
   const c = L.cfg();
   if (!L.configured(c)) return L.send(res, 503, { error: 'not_configured' });
-  // While closed, strangers cannot make the service touch the store at all.
+  // While closed, strangers cannot make this route touch the store at all.
   if (!L.allowed(req, c)) return L.send(res, 403, { error: 'closed' });
   const q = req.query || {};
+
+  if (req.method === 'DELETE') {
+    if (!L.sameOrigin(req)) return L.send(res, 403, { error: 'forbidden' });
+    if (typeof q.visitor !== 'string' || !L.ID_RE.test(q.visitor)) return L.send(res, 400, { error: 'bad_request' });
+    await L.redis(['DEL', 'sc:vis:' + q.visitor]);
+    return L.send(res, 200, { ok: true, status: 'none' });
+  }
 
   if (q.visitor !== undefined) {
     if (typeof q.visitor !== 'string' || !L.ID_RE.test(q.visitor)) return L.send(res, 400, { error: 'bad_request' });
@@ -125,7 +147,7 @@ async function look(req, res) {
     job.reason = 'timeout';
     job.tokenHash = null;
     await L.putJob(job);
-    await L.redis(['DEL', 'sc:pend:' + job.domain]);
+    await L.release(job.domain, job.id);
   }
   const out = { id: job.id, status: 'done', result: job.result };
   if (job.reason) out.reason = job.reason;
@@ -135,8 +157,8 @@ async function look(req, res) {
 module.exports = async (req, res) => {
   try {
     if (req.method === 'POST') return await start(req, res);
-    if (req.method === 'GET') return await look(req, res);
-    res.setHeader('Allow', 'GET, POST');
+    if (req.method === 'GET' || req.method === 'DELETE') return await look(req, res);
+    res.setHeader('Allow', 'GET, POST, DELETE');
     return L.send(res, 405, { error: 'method_not_allowed' });
   } catch (e) {
     return L.send(res, 503, { error: 'unavailable' });

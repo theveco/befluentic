@@ -21,6 +21,8 @@ module.exports = async (req, res) => {
     if (!job) return L.send(res, 404, { error: 'not_found' });
     if (job.status !== 'pending' || !job.tokenHash) return L.send(res, 409, { error: 'already_closed' });
     if (!L.safeEqual(L.sha(b.token), job.tokenHash)) return L.send(res, 403, { error: 'forbidden' });
+    // A result that arrives long after the scan was given up on is not taken.
+    if (Date.now() - job.created > c.timeoutMs + 30000) return L.send(res, 409, { error: 'expired' });
     // Closed exactly once: a second callback, or one racing the timeout, stops here.
     if (!(await L.claim('sc:closed:' + job.id, '1', c.jobTtl))) return L.send(res, 409, { error: 'already_closed' });
 
@@ -36,9 +38,14 @@ module.exports = async (req, res) => {
       job.reason = 'invalid';
     }
     // Only a full scan is kept, so a failed one never becomes "the saved result".
-    if (good) await L.redis(['SET', 'sc:dom:' + job.domain, JSON.stringify(result), 'EX', c.keepSeconds]);
+    // The date is set here, once. A saved scan is never renewed: it expires 30
+    // days after it was made, however often it is viewed.
+    if (good) {
+      result.scannedAt = new Date().toISOString().slice(0, 10);
+      await L.redis(['SET', 'sc:dom:' + job.domain, JSON.stringify(result), 'EX', c.keepSeconds]);
+    }
     await L.putJob(job);
-    await L.redis(['DEL', 'sc:pend:' + job.domain]);
+    await L.release(job.domain, job.id);
     return L.send(res, 200, { ok: true, accepted: good });
   } catch (e) {
     return L.send(res, 503, { error: 'unavailable' });
