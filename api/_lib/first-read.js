@@ -160,6 +160,18 @@ function personal(text) {
   return LONG_NUMBER.test(rest);
 }
 
+// A web address is cut down to its host: paths and query strings can carry
+// personal details and are never stored or forwarded. The agent starts from
+// the home page in any case.
+function tidy(text) {
+  return text.split(/\s+/).map((t) => {
+    const m = HOST.exec(t);
+    if (!m) return t;
+    const trail = t.slice(m[0].length);
+    return trail === '' || /^[\/?#]/.test(trail) ? (m[1] || '') + m[2].toLowerCase() : t;
+  }).join(' ');
+}
+
 // Refuses addresses the agent should never be sent to read: this-machine and
 // private-network names, raw IP addresses, and anything that is not http(s).
 function unsafeTarget(text) {
@@ -246,7 +258,7 @@ function send(res, status, obj) {
 
 module.exports = {
   ID_RE, cfg, configured, redis, getJob, putJob, hit, sha, safeEqual, clientKey,
-  allowed, body, claim, cleanStr, outbound, personal, unsafeTarget, sameOrigin, validateResult, errorResult, send,
+  allowed, body, claim, cleanStr, outbound, personal, tidy, unsafeTarget, sameOrigin, validateResult, errorResult, send,
   newId: () => crypto.randomBytes(16).toString('hex'),
   newToken: () => crypto.randomBytes(32).toString('hex'),
 };

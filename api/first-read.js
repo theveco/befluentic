@@ -23,6 +23,7 @@ async function start(req, res) {
   if (b.id !== undefined) {
     if (typeof b.id !== 'string' || !L.ID_RE.test(b.id)) return L.send(res, 400, { error: 'bad_request' });
     reply = L.cleanStr(b.reply, 500);
+    if (reply) reply = L.tidy(reply);
     if (!reply) return L.send(res, 400, { error: 'bad_request' });
     const prev = await L.getJob(b.id);
     if (!prev || prev.status !== 'done' || !prev.result) return L.send(res, 404, { error: 'not_found' });
@@ -32,6 +33,7 @@ async function start(req, res) {
     previous = prev.result;
   } else {
     input = L.cleanStr(b.input, 500);
+    if (input) input = L.tidy(input);
     if (!input || input.length < 3) return L.send(res, 400, { error: 'bad_request' });
   }
 
