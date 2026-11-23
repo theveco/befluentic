@@ -26,7 +26,11 @@ module.exports = async (req, res) => {
     // Closed exactly once: a second callback, or one racing the timeout, stops here.
     if (!(await L.claim('sc:closed:' + job.id, '1', c.jobTtl))) return L.send(res, 409, { error: 'already_closed' });
 
-    const result = L.validateScan(b.result, job.domain, c);
+    const why = ['posted fields: ' + L.keyNames(b, 12)];
+    // Whatever the result contains, checking it must never leave the scan
+    // stuck: a result that cannot even be checked is a rejected one.
+    let result = null;
+    try { result = L.validateScan(b.result, job.domain, c, why); } catch (e) { why.push('result could not be checked'); }
     job.status = 'done';
     job.tokenHash = null;
     const good = Boolean(result && result.type !== 'error');
@@ -36,6 +40,9 @@ module.exports = async (req, res) => {
     } else {
       job.result = L.errorResult();
       job.reason = 'invalid';
+      // Which rule rejected it, first, then the field names: names and sizes
+      // only, never the content.
+      job.detail = [why[why.length - 1]].concat(why.slice(0, -1)).join(' | ').slice(0, 600);
     }
     // Only a full scan is kept, so a failed one never becomes "the saved result".
     // The date is set here, once. A saved scan is never renewed: it expires 30
