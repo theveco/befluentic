@@ -136,7 +136,8 @@
     li b{color:var(--bone);font-weight:500}
     li span{color:var(--bone-60);font-size:.9rem}
     .foot{margin-top:4rem;padding-top:1.4rem;border-top:1px solid var(--bone-06);font-family:var(--m);font-size:.5625rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-40);display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-  </style>
+  section p + p{margin-top:.9rem}
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -150,13 +151,6 @@
       </a>
       <a class="back" href="/">Back to site</a>
     </div>
-
-    <!-- BUILD NOTE for Counsel's notice drop-in (2026-08-14): Ardi has DECLINED to
-         appoint an EU representative. When Counsel's content arrives, OMIT the
-         representative section entirely. Do not render an empty label, a dangling
-         heading, or a "to be appointed" slot: an absent section reads better than a
-         visibly unfilled one. Same rule for any other unfilled field (street address,
-         email/CRM provider names) until real values exist. -->
     <span class="ey">Privacy</span>
     <h1>How we handle your data.</h1>
 
@@ -167,12 +161,22 @@
 
     <section>
       <h2>What we collect</h2>
-      <p>Your name, company, email, and whatever you tell us through the contact form or the AI Readiness Check. Nothing more.</p>
+      <p>When you contact us, we collect the name, company, email address and message you provide. The Fluentic Opportunity Scanner asks only for a public company domain. Its data use is set out below.</p>
     </section>
 
     <section>
       <h2>Why</h2>
-      <p>To reply, judge whether we are a fit, and prepare for a call. We do not use it for anything else.</p>
+      <p>We use contact form enquiries to reply, understand what you need and prepare for a call.</p>
+    </section>
+
+    <section>
+      <h2>Fluentic Opportunity Scanner</h2>
+      <p>We use only the host name you enter, not the rest of the web address. If we already have a scan for that domain, we show it. Otherwise, we send the domain to Hyperagent, our US-based AI service. It reads the public home page and up to 3 linked pages on the same site. The result may quote and link to those pages. Suggested bottlenecks and benchmark figures are not verified findings about the business.</p>
+      <p>We keep the finished scan in Upstash for <b>30 days from the date it was made</b>. Anyone who enters the same domain can see it. Viewing it does not restart the 30 days. The Scanner does not recognise returning browsers, set cookies or use browser storage.</p>
+      <p>To prevent abuse, we limit fresh scans to 1 per network address per day and apply a daily total limit. We keep a code derived from the IP address for about 25 hours. The Scanner function does not store the raw IP address. Vercel, our host, processes IP addresses to serve the site. Viewing a saved scan does not count as a fresh scan.</p>
+      <p>The 30-day limit does not delete the separate conversation in our Hyperagent account. It stays there until we delete it; we do not currently promise a fixed deadline. <a href="https://hyperagent.com/terms?standalone=1" target="_blank" rel="noopener noreferrer">Hyperagent's terms</a> allow its AI providers to keep inputs and outputs for up to 30 days for safety checks, or longer where legally required. We have not confirmed when all backups expire. Data may be processed in the United States. We have not verified all processing locations or which international transfer safeguard covers our account.</p>
+      <p>The booking link opens Calendly. Clicking it does not send your domain or scan to Calendly, Formspree or our inbox. Calendly asks for booking details if you choose to schedule.</p>
+      <p>Fluentic L.L.C., Prishtin&euml;, Kosovo, is responsible for the Scanner. Our legitimate interests are providing company scans, avoiding repeat processing and preventing abuse. <b>To report an inaccurate scan or request a takedown, email <a href="mailto:info@befluentic.com">info@befluentic.com</a> with the domain.</b> You can also ask about transfer safeguards, request access, correction, deletion or restriction of your personal data, or object to processing. You may raise a concern with Kosovo's Information and Privacy Agency or your local data protection authority.</p>
     </section>
 
     <section>
@@ -184,10 +188,11 @@
       <h2>Services we use</h2>
       <p>A small set of services processes data on our behalf to run this site and answer you:</p>
       <ul>
-        <li><b>Formspree</b> <span>&middot; delivers your form submissions to our inbox</span></li>
-        <li><b>Calendly</b> <span>&middot; schedules calls you book with us</span></li>
-        <li><b>Vercel</b> <span>&middot; hosts this website</span></li>
-        <li><b>Cloudflare</b> <span>&middot; network delivery and security</span></li>
+        <li><b>Formspree</b> <span>&middot; delivers contact form messages to our inbox</span></li>
+        <li><b>Calendly</b> <span>&middot; schedules calls you choose to book</span></li>
+        <li><b>Vercel</b> <span>&middot; hosts the site and runs the Scanner function</span></li>
+        <li><b>Hyperagent</b> <span>&middot; reads public company pages and generates new scans</span></li>
+        <li><b>Upstash</b> <span>&middot; stores saved scans and short-lived abuse counters</span></li>
         <li><b>Airtable Inc.</b> <span>&middot; manages prospect and client records</span></li>
       </ul>
     </section>
@@ -201,16 +206,6 @@
       <h2>Retention and control</h2>
       <p>We keep enquiries while we are in contact and remove them on request. Email <a href="mailto:info@befluentic.com">info@befluentic.com</a> to see, correct, or delete what we hold.</p>
     </section>
-
-    <!-- BUILD NOTE (2026-08-14): Counsel supplied the Swiss FADP sentence below verbatim,
-         addressed to "the end of Section 9, governing law" of the FULL notice. The interim
-         container had no governing-law section, so this one was created to carry it.
-         Counsel's primary governing-law sentence arrives with the full notice and slots in
-         ABOVE the FADP line. Do not draft it here.
-         UPDATE 2026-08-15: Airtable Inc. added to the services list per Counsel
-         (prospect/client records; standard terms incorporate the processing
-         agreement by reference, copy saved by the team). The "CRM provider name"
-         is no longer an unfilled field. -->
     <section>
       <h2>Governing law</h2>
       <p>For data subjects in Switzerland, this notice is additionally governed by the Federal Act on Data Protection (FADP) of 25 September 2020, as revised.</p>
