@@ -111,10 +111,18 @@ async function claim(key, value, ttlSeconds) {
   return (await redis(['SET', key, value, 'NX', 'EX', ttlSeconds])) === 'OK';
 }
 
+// Where a domain's "running" marker and saved scan live. Scans started by the
+// team page are kept apart from the public ones, so a team scan never becomes
+// the result a visitor is shown for that domain, and a visitor never joins a
+// run the team started.
+const TEAM_SCANS_SHARED = false;
+function pendKey(domain, internal) { return (internal ? 'sc:ipend:' : 'sc:pend:') + domain; }
+function savedKey(domain, internal) { return (internal && !TEAM_SCANS_SHARED ? 'sc:idom:' : 'sc:dom:') + domain; }
+
 // Removes a domain's "running" marker only if it still belongs to this job, so
 // a late job can never clear the marker of the job that replaced it.
-function release(domain, id) {
-  return redis(['EVAL', "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0", '1', 'sc:pend:' + domain, id]);
+function release(domain, id, internal) {
+  return redis(['EVAL', "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0", '1', pendKey(domain, internal), id]);
 }
 
 function sha(s) {
@@ -552,7 +560,7 @@ function send(res, status, obj) {
 }
 
 module.exports = {
-  ID_RE, cfg, configured, outbound, redis, getJson, getJob, putJob, hit, claim, release, reach, privateAddress, sha,
+  ID_RE, cfg, configured, outbound, redis, getJson, getJob, putJob, hit, claim, release, pendKey, savedKey, reach, privateAddress, sha,
   safeEqual, clientKey, allowed, hasTestKey, body, cleanStr, sameOrigin, parseDomain, personal,
   validateScan, current, numberTokens, keyNames, errorResult, send,
   newId: () => crypto.randomBytes(16).toString('hex'),

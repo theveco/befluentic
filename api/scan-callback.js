@@ -49,10 +49,11 @@ module.exports = async (req, res) => {
     // days after it was made, however often it is viewed.
     if (good) {
       result.scannedAt = new Date().toISOString().slice(0, 10);
-      await L.redis(['SET', 'sc:dom:' + job.domain, JSON.stringify(result), 'EX', c.keepSeconds]);
+      // A scan the team page started is saved apart from the public ones.
+      await L.redis(['SET', L.savedKey(job.domain, job.internal), JSON.stringify(result), 'EX', c.keepSeconds]);
     }
     await L.putJob(job);
-    await L.release(job.domain, job.id);
+    await L.release(job.domain, job.id, job.internal);
     return L.send(res, 200, { ok: true, accepted: good });
   } catch (e) {
     return L.send(res, 503, { error: 'unavailable' });
