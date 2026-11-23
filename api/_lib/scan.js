@@ -46,6 +46,10 @@ function cfg() {
     // limit: no browser identifier is used. Saved results do not count, so
     // colleagues in one office who enter the same domain are not held back.
     perIpDay: int(env.SCAN_PER_IP_DAY, 3),
+    // Failed scans per network address per day. A failed scan does not use up
+    // the visitor's scan, so this stops one address from burning runs on a
+    // site that always fails. The daily cap still counts every run.
+    perIpFails: int(env.SCAN_PER_IP_FAILS, 3),
     // How long a finished scan is kept, counted from the day it was made.
     keepSeconds: int(env.SCAN_KEEP_DAYS, 30, 1) * 86400,
     // A scan reads up to 4 company pages, then runs up to 5 searches and opens
@@ -123,6 +127,15 @@ function savedKey(domain, internal) { return (internal && !TEAM_SCANS_SHARED ? '
 // a late job can never clear the marker of the job that replaced it.
 function release(domain, id, internal) {
   return redis(['EVAL', "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0", '1', pendKey(domain, internal), id]);
+}
+
+// Hands back a visitor's scan when the run did not produce a result, and
+// counts the failure instead. Called once, from whichever path closes the job.
+// The daily cap is not handed back: the run was paid for.
+async function refund(job) {
+  if (!job || !job.ipKey || !job.failKey) return;
+  await redis(['EVAL', "local n=tonumber(redis.call('GET',KEYS[1]) or '0') if n>0 then return redis.call('DECR',KEYS[1]) end return 0", '1', job.ipKey]);
+  await hit(job.failKey, 90000);
 }
 
 function sha(s) {
@@ -560,7 +573,7 @@ function send(res, status, obj) {
 }
 
 module.exports = {
-  ID_RE, cfg, configured, outbound, redis, getJson, getJob, putJob, hit, claim, release, pendKey, savedKey, reach, privateAddress, sha,
+  ID_RE, cfg, configured, outbound, redis, getJson, getJob, putJob, hit, claim, release, refund, pendKey, savedKey, reach, privateAddress, sha,
   safeEqual, clientKey, allowed, hasTestKey, body, cleanStr, sameOrigin, parseDomain, personal,
   validateScan, current, numberTokens, keyNames, errorResult, send,
   newId: () => crypto.randomBytes(16).toString('hex'),

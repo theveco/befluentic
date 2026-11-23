@@ -150,6 +150,8 @@ async function poll(req, res, c) {
     job.tokenHash = null;
     await L.putJob(job);
     await L.release(job.domain, job.id, job.internal);
+    // A public run the team joined and found timed out: hand the visitor's scan back.
+    await L.refund(job);
   }
   const out = { id: job.id, status: 'done', result: job.result };
   if (job.reason) out.reason = job.reason;

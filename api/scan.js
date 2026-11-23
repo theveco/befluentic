@@ -2,9 +2,9 @@
 // Opportunity Scanner scan service.
 //   POST /api/scan  { domain }     ask for a scan
 //   GET  /api/scan?id=...          poll a scan that is running
-// No visitor is recognised and nothing is kept in the visitor's browser. A
-// domain scanned before is answered from the saved result; fresh runs are
-// limited per network address and by a daily cap.
+// No visitor is recognised by the service. A domain scanned before is
+// answered from the saved result; fresh runs are limited per network address
+// (successful scans only, plus a limit on failed ones) and by a daily cap.
 // The booking button is a plain link. Nothing is sent anywhere on that click.
 const L = require('./_lib/scan');
 
@@ -36,12 +36,23 @@ async function start(req, res) {
 
   //    Limits are checked before anything is spent. If the store is down the
   //    service refuses, so a run never starts without the cap.
+  //    The address count holds this run while it is going; it is handed back
+  //    if the run ends without a result, so only a successful scan uses up the
+  //    visitor's scan. Failed runs are counted apart and limited.
   const day = new Date().toISOString().slice(0, 10);
-  const ipKey = 'sc:ipd:' + day + ':' + L.clientKey(req, c);
+  const who = L.clientKey(req, c);
+  const ipKey = 'sc:ipd:' + day + ':' + who;
+  const failKey = 'sc:ipf:' + day + ':' + who;
+  if ((Number(await L.redis(['GET', failKey])) || 0) >= c.perIpFails) {
+    return L.send(res, 429, { error: 'rate_limited', failed: true });
+  }
   if ((await L.hit(ipKey, 90000)) > c.perIpDay) {
+    await L.redis(['DECR', ipKey]);
     return L.send(res, 429, { error: 'rate_limited' });
   }
   if ((await L.hit('sc:cap:' + day, 90000)) > c.dailyCap) {
+    // No run, so the visitor's scan is not used up.
+    await L.redis(['DECR', ipKey]);
     return L.send(res, 429, { error: 'daily_cap' });
   }
 
@@ -59,7 +70,7 @@ async function start(req, res) {
     }
     await L.redis(['SET', 'sc:pend:' + domain, id, 'EX', pendTtl]);
   }
-  const job = { id, status: 'pending', created: Date.now(), domain, tokenHash: L.sha(token), result: null, reason: null };
+  const job = { id, status: 'pending', created: Date.now(), domain, ipKey, failKey, tokenHash: L.sha(token), result: null, reason: null };
   await L.putJob(job);
 
   let ok = false; let unsure = false;
@@ -83,6 +94,7 @@ async function start(req, res) {
     job.tokenHash = null;
     await L.putJob(job);
     await L.release(domain, id);
+    await L.refund(job);
     return L.send(res, 502, { id, status: 'done', result: job.result, reason: 'upstream' });
   }
   return L.send(res, 202, { id, status: 'pending' });
@@ -108,6 +120,7 @@ async function poll(req, res) {
     job.tokenHash = null;
     await L.putJob(job);
     await L.release(job.domain, job.id);
+    await L.refund(job);
   }
   const out = { id: job.id, status: 'done', result: job.result };
   if (job.reason) out.reason = job.reason;

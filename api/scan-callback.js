@@ -54,6 +54,8 @@ module.exports = async (req, res) => {
     }
     await L.putJob(job);
     await L.release(job.domain, job.id, job.internal);
+    // No result: the visitor's scan is handed back and counted as a failure.
+    if (!good) await L.refund(job);
     return L.send(res, 200, { ok: true, accepted: good });
   } catch (e) {
     return L.send(res, 503, { error: 'unavailable' });
