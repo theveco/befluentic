@@ -96,7 +96,8 @@ async function poll(req, res) {
   const id = req.query && req.query.id;
   if (typeof id !== 'string' || !L.ID_RE.test(id)) return L.send(res, 400, { error: 'bad_request' });
   const job = await L.getJob(id);
-  if (!job) return L.send(res, 404, { error: 'not_found' });
+  // A scan the team page started is not answered here.
+  if (!job || job.internal) return L.send(res, 404, { error: 'not_found' });
   if (job.status === 'pending') {
     if (Date.now() - job.created <= c.timeoutMs) return L.send(res, 200, { id: job.id, status: 'pending' });
     // If the agent's result is landing at this very moment, let it win.
