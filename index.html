@@ -124,8 +124,14 @@
     ]
   }
   </script>
-  <!-- Analytics — Vercel Web Analytics (free, cookieless). Turn it on in the project's Analytics tab; this script serves automatically once enabled. -->
+  <!-- Vercel Web Analytics (cookieless visitor tracking) -->
   <script defer src="/_vercel/insights/script.js"></script>
+  
+  <!-- Vercel Speed Insights (performance monitoring) -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
