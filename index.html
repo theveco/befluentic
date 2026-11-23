@@ -1143,6 +1143,7 @@
           <button type="submit" id="oscGo">Scan <span aria-hidden="true">&rarr;</span></button>
         </form>
         <div class="osc-cap" id="oscCap" hidden>Today's scans are used up. Book a call and we go through your business together.<br><a href="https://calendly.com/befluentic-info/30min" class="btn btn-fill btn-lg" target="_blank" rel="noopener noreferrer">Book a free 30-minute call</a></div>
+        <div class="osc-cap" id="oscDone" hidden><span id="oscDoneT"></span><br><button type="button" class="btn btn-fill btn-lg" id="oscOpen">Open your scan</button></div>
         <div class="osc-err" id="oscErr" role="alert"></div>
         <p class="osc-note" id="oscNote">Type your company's website. In about a minute, AI reads it and shows where your team likely loses time, and what we could build to fix it.</p>
       </div>
@@ -1860,7 +1861,7 @@
         <span class="mono">No scan</span>
         <h2 id="oscFailT"></h2>
         <p class="osc-failp" id="oscFailP"></p>
-        <div class="osc-acts"><a class="osc-btn" href="https://calendly.com/befluentic-info/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call &rarr;</a><button class="osc-btn ghost" type="button" id="oscFailX">Close</button></div>
+        <div class="osc-acts"><a class="osc-btn" href="https://calendly.com/befluentic-info/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call &rarr;</a><button class="osc-btn ghost" type="button" id="oscFailX">Try again</button></div>
       </div>
     </div>
     <div class="results" id="oscRes" hidden>
@@ -1917,6 +1918,7 @@
     unsupported_domain:'We can\'t scan that domain. Try your company\'s own site.',
     unreachable_domain:'We couldn\'t find that domain. Check the spelling.',
     rate_limited:'You\'ve used today\'s scan. Come back tomorrow, or talk to us now:',
+    failed_cap:'This site couldn\'t be read today. Talk to us instead:',
     closed:'The scanner isn\'t open yet. Talk to us instead:',
     down:'Something went wrong on our side. Try again in a minute.'
   };
@@ -1928,7 +1930,7 @@
     var form=$('grader'), input=$('oscIn'), go=$('oscGo'), err=$('oscErr'), osc=$('osc');
     if(!form || !osc || !window.fetch) return;
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var run = 0, timers = [], data = null, srcAll = [], list = [], state = {}, sel = 0;
+    var run = 0, timers = [], last = null, pending = null, data = null, srcAll = [], list = [], state = {}, sel = 0;
 
     function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
     function pad(n){ return (n<10?'0':'')+n; }
@@ -1943,17 +1945,29 @@
       if(c.kind==='minutes'){ lo/=60; hi/=60; return {lo:lo,hi:hi,kind:'h',unit:'hours a '+c.per}; }
       return {lo:lo,hi:hi,kind:'$',cur:c.currency||'',unit:'a '+c.per}; }
     function per(c){ var f=function(v){ return (Math.round(v*100)/100).toLocaleString('en-US'); }, r=(+c.low===+c.high)?f(c.low):(f(c.low)+' to '+f(c.high)); return c.kind==='minutes' ? (r+' minutes saved each') : ((c.currency||'')+r+' saved each'); }
+    /* remembers only the scanned domain and its date, on this device, for 30 days */
+    var KEEP=false; /* "Open your scan" is held until the privacy wording is ready */
+    var KEY='fl_scan';
+    function saveLocal(D){ if(!KEEP) return; try{ window.localStorage.setItem(KEY, JSON.stringify({d:D.domain, t:D.scannedAt||''})); }catch(e){} }
+    function clearLocal(){ try{ window.localStorage.removeItem(KEY); }catch(e){} }
+    function loadLocal(){ if(!KEEP) return null; try{ var o=JSON.parse(window.localStorage.getItem(KEY)||'null'); if(!o || typeof o.d!=='string' || !/^[a-z0-9.-]{3,100}$/i.test(o.d)) return null;
+      if(o.t && (Date.now()-Date.parse(o.t))/864e5 > 30){ clearLocal(); return null; } return o; }catch(e){ return null; } }
+    function lock(domain){ form.hidden=true; $('oscNote').hidden=true; $('oscDoneT').textContent='Your scan of '+(domain||'your company')+' is ready.'; $('oscDone').hidden=false; }
+    function unlock(){ clearLocal(); pending=null; $('oscDone').hidden=true; form.hidden=false; $('oscNote').hidden=false; }
     function later(fn,ms){ var t=setTimeout(fn,ms); timers.push(t); return t; }
     function clear(){ timers.forEach(clearTimeout); timers=[]; }
     function view(name){ ['oscScan','oscFail','oscRes'].forEach(function(id){ $(id).hidden = (id!==name); }); $('oscBody').scrollTop=0; }
     function open(){ osc.classList.add('open'); osc.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; $('oscX').focus(); }
-    function close(){ run++; clear(); osc.classList.remove('open'); osc.setAttribute('aria-hidden','true'); document.body.style.overflow=''; input.focus(); }
-    function busy(on){ go.disabled=on; go.firstChild.nodeValue = on ? 'Checking ' : 'Scan '; }
+    function close(){ run++; clear(); osc.classList.remove('open'); osc.setAttribute('aria-hidden','true'); document.body.style.overflow='';
+      if(KEEP && (last || pending)){ lock(last ? last.domain : pending); $('oscOpen').focus(); }
+      else input.focus(); }
+    function reopen(){ if(last){ open(); view('oscRes'); } else if(pending){ start(pending); } }
+    function busy(on){ go.disabled=on; $('oscOpen').disabled=on; go.firstChild.nodeValue = on ? 'Checking ' : 'Scan '; }
     function say(text, withCall){ err.textContent=text; if(withCall){ var a=document.createElement('a'); a.href=CALL; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent='Book a free 30-minute call'; err.appendChild(document.createTextNode(' ')); err.appendChild(a); } }
 
     /* ---- talking to the scan service ---- */
-    function start(){
-      var v=(input.value||'').trim();
+    function start(saved){
+      var v=(saved || input.value || '').trim();
       if(v.length<3){ say(MSG.not_a_domain); input.focus(); return; }
       say(''); busy(true);
       var my=++run;
@@ -1964,7 +1978,9 @@
           var j=x.j;
           if(x.st===200 && j.status==='done' && j.result && j.result.type!=='error'){ open(); show(j.result); return; }
           if(x.st===202 && j.id){ open(); scanning(v); poll(j.id, my, Date.now()); return; }
-          if(j.error==='daily_cap'){ form.hidden=true; $('oscNote').hidden=true; $('oscCap').hidden=false; say(''); return; }
+          if(saved && /^(not_a_domain|unsupported_domain|unreachable_domain)$/.test(j.error||'')) unlock();
+          if(j.error==='daily_cap' && !saved){ form.hidden=true; $('oscNote').hidden=true; $('oscCap').hidden=false; say(''); return; }
+          if(j.error==='rate_limited' && j.failed){ say(MSG.failed_cap, true); return; }
           if(j.error==='rate_limited' || j.error==='closed'){ say(MSG[j.error], true); return; }
           say(MSG[j.error] || MSG.down);
         })
@@ -2001,14 +2017,14 @@
     function fail(reason){
       clear(); view('oscFail');
       $('oscFailT').textContent = reason==='timeout' ? 'That took too long.' : 'We couldn\'t read that site.';
-      $('oscFailP').textContent = reason==='timeout' ? 'The site was slow to answer. Book a call and we go through your business together.' : 'Some sites block automated readers, and some show too little to work from. Book a call and we go through your business together.';
+      $('oscFailP').textContent = reason==='timeout' ? 'The site was slow to answer. This try doesn\'t count, so you can run it again, or book a call and we go through your business together.' : 'Some sites block automated readers, and some show too little to work from. This try doesn\'t count, so you can run it again, or book a call and we go through your business together.';
     }
 
     /* ---- the result ---- */
     function show(D){
       clear();
       if(!D || !D.name || !Array.isArray(D.sources)){ fail('invalid'); return; }
-      data=D; state={}; sel=0;
+      data=D; last=D; pending=null; saveLocal(D); state={}; sel=0;
       srcAll = D.sources.map(function(s){ return {t:s.t, u:s.u}; });
       list = (D.bottlenecks||[]).filter(function(b){ return b && okBench(b.bench); }).slice(0,3).map(function(b){
         srcAll.push({t:b.bench.source.t, u:b.bench.source.u, host:b.bench.source.host});
@@ -2078,7 +2094,9 @@
 
     /* ---- events ---- */
     form.addEventListener('submit', function(e){ e.preventDefault(); start(); });
+    var kept=loadLocal(); if(kept){ pending=kept.d; lock(kept.d); }
     $('oscX').addEventListener('click', close);
+    $('oscOpen').addEventListener('click', reopen);
     $('oscFailX').addEventListener('click', close);
     osc.addEventListener('click', function(e){ if(e.target===osc) close(); });
     document.addEventListener('keydown', function(e){ if((e.key==='Escape'||e.key==='Esc') && osc.classList.contains('open')) close(); });
@@ -2099,7 +2117,7 @@
       $('oscPanel').querySelector('.res b').textContent = t ? ('About '+t+' back') : 'Drag to your own numbers';
       total();
     });
-    Array.prototype.forEach.call(document.querySelectorAll('a[href="#grader"]'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); window.scrollTo({top:0,behavior:reduce?'auto':'smooth'}); setTimeout(function(){ input.focus(); }, reduce?0:450); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('a[href="#grader"]'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); window.scrollTo({top:0,behavior:reduce?'auto':'smooth'}); setTimeout(function(){ if(KEEP && (last || pending)) reopen(); else input.focus(); }, reduce?0:450); }); });
   });
 })();
 </script>
