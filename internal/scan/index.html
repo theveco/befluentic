@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Fluentic · Team scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0A0A0A;--bone:#F5F2EB;--line:rgba(10,10,10,.14);--mid:rgba(10,10,10,.65);--soft:rgba(10,10,10,.85);--f:'Inter',system-ui,sans-serif;--m:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f);background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+[hidden]{display:none !important}
+button,input,textarea{font-family:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:clamp(1.25rem,4vw,3rem) clamp(1rem,4vw,2rem) 5rem}
+.mono{font-family:var(--m);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mid)}
+h1{font-weight:500;font-size:clamp(1.7rem,3.4vw,2.4rem);letter-spacing:-.03em;margin:.5rem 0 .5rem}
+p.lede{color:var(--mid);font-size:.98rem;line-height:1.55;max-width:60ch}
+.gate{max-width:380px;margin:18vh auto 0}
+.gate form{display:flex;gap:.5rem;margin-top:1.2rem}
+input[type=password],textarea{width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.8rem .9rem;font-size:1rem}
+input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+textarea{min-height:11rem;font-family:var(--m);font-size:.88rem;line-height:1.6;margin-top:1.2rem;resize:vertical}
+.btn{background:var(--ink);color:var(--bone);border:1px solid var(--ink);border-radius:8px;font-size:.92rem;font-weight:500;padding:.75rem 1.2rem;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.9rem}
+.status{font-size:.9rem;color:var(--mid);margin-left:auto}
+.msg{min-height:1.3rem;margin-top:.7rem;font-size:.9rem}
+.res{background:#fff;border:1px solid var(--line);border-radius:14px;padding:clamp(1.1rem,2.5vw,1.7rem);margin-top:1rem}
+.res-h{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.res-h h2{font-weight:500;font-size:1.35rem;letter-spacing:-.02em;overflow-wrap:anywhere}
+.res-h .mono{display:block;margin-top:.3rem}
+.res p.d{font-size:.95rem;line-height:1.55;color:var(--soft);margin:.7rem 0 0;max-width:70ch}
+.bn{border-top:1px solid var(--line);margin-top:1.1rem;padding-top:1.1rem;display:grid;grid-template-columns:1.2fr 1fr;gap:1.5rem}
+.bn h3{font-weight:600;font-size:1.02rem;margin:.35rem 0 .3rem}
+.bn p{font-size:.93rem;line-height:1.55;color:var(--soft)}
+.bn .fig{font-size:.88rem;color:var(--mid);margin-top:.5rem}
+.bn q{display:block;font-size:.9rem;line-height:1.5;margin:.5rem 0 .3rem;padding-left:.7rem;border-left:2px solid var(--ink);quotes:'\201C' '\201D';overflow-wrap:anywhere}
+.bn a{font-size:.8rem;color:var(--mid);text-underline-offset:3px;overflow-wrap:anywhere}
+.fix{margin-top:.9rem;background:var(--bone);border-radius:8px;padding:.7rem .8rem}
+.fix b{font-weight:600}
+.res.bad{border-color:rgba(10,10,10,.3);background:none}
+.res.wait{color:var(--mid);background:none;border-style:dashed}
+@media(max-width:700px){.bn{grid-template-columns:1fr;gap:.9rem}.status{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="gate" id="gate">
+    <span class="mono">Fluentic · Team</span>
+    <form id="gateForm" autocomplete="off">
+      <input type="password" id="pw" placeholder="Team password" aria-label="Team password" autocomplete="off">
+      <button class="btn" type="submit">Enter</button>
+    </form>
+    <div class="msg" id="gateMsg" role="alert"></div>
+  </div>
+
+  <div id="app" hidden>
+    <span class="mono">Fluentic · Team scanner</span>
+    <h1>Scan prospect websites.</h1>
+    <p class="lede">Paste up to 20 websites, one per line. They run one after another, about a minute each. Check each bottleneck against its source before you use it.</p>
+    <textarea id="urls" placeholder="acme.com&#10;example.org&#10;https://www.another-company.com" aria-label="Websites, one per line" spellcheck="false"></textarea>
+    <div class="row">
+      <button class="btn" type="button" id="run">Run scans</button>
+      <button class="btn ghost" type="button" id="stop" hidden>Stop after this one</button>
+      <button class="btn ghost" type="button" id="csv" disabled>Download CSV</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+    <div class="msg" id="msg" role="alert"></div>
+    <div id="out"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var API='/api/internal/scan';
+  var $=function(id){return document.getElementById(id);};
+  var pw='', rows=[], running=false, stopAsked=false;
+  function el(tag,cls,text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+  function okUrl(u){ return typeof u==='string' && /^https:\/\//i.test(u); }
+  function clean(v){ return v.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/[\/?#].*$/,''); }
+  function call(method, path, body){
+    var o={method:method, headers:{'Accept':'application/json','X-Team-Password':pw}};
+    if(body){ o.headers['Content-Type']='application/json'; o.body=JSON.stringify(body); }
+    return fetch(path,o).then(function(r){ return r.json().catch(function(){return {};}).then(function(j){ return {st:r.status,j:j||{}}; }); });
+  }
+  function wait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+
+  $('gateForm').addEventListener('submit',function(e){
+    e.preventDefault(); pw=$('pw').value; if(!pw) return;
+    call('GET',API+'?check=1').then(function(x){
+      if(x.st===200){ $('gate').hidden=true; $('app').hidden=false; $('urls').focus(); }
+      else { pw=''; $('pw').value=''; $('gateMsg').textContent = x.st===429 ? 'Too many tries. Wait 15 minutes.' : ''; }   /* wrong password: show nothing */
+    }).catch(function(){ pw=''; $('pw').value=''; });
+  });
+
+  function scanOne(domain){
+    return call('POST',API,{domain:domain}).then(function(x){
+      var j=x.j;
+      if(x.st===401) return {err:'Password no longer accepted. Reload the page.'};
+      if(x.st===429) return {err: j.error==='daily_cap' ? 'The team\'s daily scan cap is used up.' : 'Too many tries from this network. Wait 15 minutes.'};
+      if(x.st===200 && j.result && j.result.type!=='error') return {res:j.result, cached:!!j.cached};
+      if(x.st===202 && j.id) return poll(j.id, Date.now());
+      return {err: ({not_a_domain:'Not a website address.',unsupported_domain:'This domain cannot be scanned.',unreachable_domain:'The domain does not exist.'})[j.error] || 'The service could not start this scan.'};
+    }).catch(function(){ return {err:'Network problem.'}; });
+  }
+  function poll(id,t0){
+    return wait(2500).then(function(){
+      if(Date.now()-t0>190000) return {err:'Timed out.'};
+      return call('GET',API+'?id='+encodeURIComponent(id)).then(function(x){
+        var j=x.j;
+        if(j.status==='pending') return poll(id,t0);
+        if(j.status==='done' && j.result && j.result.type!=='error') return {res:j.result};
+        return {err:'The site could not be read'+(j.reason?' ('+j.reason+(j.detail?': '+[].concat(j.detail).join(', '):'')+')':'')+'.'};
+      }).catch(function(){ return poll(id,t0); });
+    });
+  }
+
+  function fixOf(D,b){ var s=(D.solutions||[])[b.sol]; return s ? (s.name+': '+s.text) : ''; }
+  function benchOf(b){ var be=b.bench; return (be && be.figure) ? (be.figure+' '+(be.label||'')) : ''; }
+  function plain(row){
+    var D=row.res; if(!D) return row.domain+'\n'+row.err;
+    var t=[D.name+' ('+D.domain+')', D.description||'', ''];
+    (D.bottlenecks||[]).forEach(function(b,i){
+      var src=(D.sources||[])[b.s-1];
+      t.push((i+1)+'. '+b.name+': '+b.text);
+      if(benchOf(b)) t.push('   Industry estimate: '+benchOf(b)+(b.bench.source&&b.bench.source.host?' ('+b.bench.source.host+')':''));
+      t.push('   Based on: "'+b.quote+'"'+(src?' ('+src.u+')':''));
+      if(fixOf(D,b)) t.push('   We could build: '+fixOf(D,b));
+      t.push('');
+    });
+    t.push('Scanned '+(D.scannedAt||''));
+    return t.join('\n');
+  }
+  function card(row){
+    var c=el('article','res');
+    if(row.state==='wait'){ c.className='res wait'; c.textContent=row.domain+(row.now?' · scanning…':' · waiting'); return c; }
+    if(row.err){ c.className='res bad'; var h=el('div','res-h'); h.appendChild(el('h2',null,row.domain)); c.appendChild(h); c.appendChild(el('p','d',row.err)); return c; }
+    var D=row.res, head=el('div','res-h'), left=el('div');
+    left.appendChild(el('h2',null,D.name||row.domain));
+    left.appendChild(el('span','mono',row.domain+' · scanned '+(D.scannedAt||'')+(row.cached?' · saved scan':'')));
+    var cp=el('button','btn ghost','Copy'); cp.type='button';
+    cp.addEventListener('click',function(){ var t=plain(row); (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){ cp.textContent='Copied'; setTimeout(function(){cp.textContent='Copy';},1500); }).catch(function(){ var ta=el('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); cp.textContent='Copied';}catch(e){} document.body.removeChild(ta); setTimeout(function(){cp.textContent='Copy';},1500); }); });
+    head.appendChild(left); head.appendChild(cp); c.appendChild(head);
+    if(D.description) c.appendChild(el('p','d',D.description));
+    (D.bottlenecks||[]).forEach(function(b,i){
+      var g=el('div','bn'), a=el('div'), e=el('div');
+      a.appendChild(el('span','mono','Bottleneck 0'+(i+1)));
+      a.appendChild(el('h3',null,b.name)); a.appendChild(el('p',null,b.text));
+      if(benchOf(b)){ var f=el('p','fig','Industry estimate: '+benchOf(b)+' '); if(b.bench.source && okUrl(b.bench.source.u)){ var fa=el('a',null,'('+(b.bench.source.host||'source')+')'); fa.href=b.bench.source.u; fa.target='_blank'; fa.rel='noopener noreferrer nofollow'; f.appendChild(fa); } a.appendChild(f); }
+      if(fixOf(D,b)){ var fx=el('p','fix'); var s=D.solutions[b.sol]; fx.appendChild(el('b',null,'We could build: '+s.name+'. ')); fx.appendChild(document.createTextNode(s.text)); a.appendChild(fx); }
+      e.appendChild(el('span','mono','Based on'));
+      e.appendChild(el('q',null,b.quote||''));
+      var src=(D.sources||[])[b.s-1];
+      if(src && okUrl(src.u)){ var l=el('a',null,(src.t||'Source')+' · '+src.u); l.href=src.u; l.target='_blank'; l.rel='noopener noreferrer nofollow'; e.appendChild(l); }
+      if(b.note) e.appendChild(el('p','fig',b.note));
+      g.appendChild(a); g.appendChild(e); c.appendChild(g);
+    });
+    return c;
+  }
+  function draw(){ var o=$('out'); o.textContent=''; rows.forEach(function(r){ o.appendChild(card(r)); }); $('csv').disabled = running || !rows.some(function(r){return r.res||r.err;}); }
+
+  $('run').addEventListener('click',function(){
+    if(running) return;
+    var seen={}, list=$('urls').value.split(/\r?\n/).map(clean).filter(function(d){ if(!d||seen[d]) return false; seen[d]=1; return true; });
+    if(!list.length){ $('msg').textContent='Paste at least one website.'; return; }
+    if(list.length>20){ $('msg').textContent='That is '+list.length+' websites. The limit is 20 per batch.'; return; }
+    $('msg').textContent=''; running=true; stopAsked=false; $('run').disabled=true; $('stop').hidden=false;
+    rows=list.map(function(d){ return {domain:d,state:'wait'}; }); draw();
+    var i=0;
+    (function next(){
+      if(i>=rows.length || stopAsked){ running=false; $('run').disabled=false; $('stop').hidden=true; $('status').textContent='Done: '+rows.filter(function(r){return r.res;}).length+' scanned, '+rows.filter(function(r){return r.err;}).length+' failed'+(stopAsked&&i<rows.length?', '+(rows.length-i)+' not run':'')+'.'; rows=rows.filter(function(r){return r.state!=='wait';}); draw(); return; }
+      var r=rows[i]; r.now=true; $('status').textContent='Scanning '+(i+1)+' of '+rows.length+': '+r.domain; draw();
+      scanOne(r.domain).then(function(x){ r.state='done'; r.now=false; r.res=x.res||null; r.err=x.err||null; r.cached=!!x.cached; i++; draw(); next(); });
+    })();
+  });
+  $('stop').addEventListener('click',function(){ stopAsked=true; $('stop').hidden=true; });
+
+  function cell(v){ v=String(v==null?'':v); if(/^[=+\-@\t\r]/.test(v)) v="'"+v; return '"'+v.replace(/"/g,'""')+'"'; }
+  $('csv').addEventListener('click',function(){
+    var lines=[['url','bottleneck_1','bottleneck_2','bottleneck_3','fixes','scanned_at'].join(',')];
+    rows.forEach(function(r){
+      var D=r.res, b=D?(D.bottlenecks||[]):[];
+      var bn=function(k){ return b[k] ? (b[k].name+': '+b[k].text) : (k===0&&r.err?('FAILED: '+r.err):''); };
+      var fixes=D?b.map(function(x){ return fixOf(D,x); }).filter(Boolean).join(' | '):'';
+      lines.push([r.domain,bn(0),bn(1),bn(2),fixes,D?(D.scannedAt||''):''].map(cell).join(','));
+    });
+    var blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}), a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='fluentic-scans-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+  });
+})();
+</script>
+</body>
+</html>
