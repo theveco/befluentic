@@ -23,8 +23,9 @@ async function start(req, res) {
   }
 
   // 1. A domain scanned before, or being scanned right now, costs nothing.
+  //    A scan saved in the earlier shape is not served: it is made again.
   const known = await L.getJson('sc:dom:' + domain);
-  if (known) return L.send(res, 200, { status: 'done', result: known, cached: true });
+  if (known && L.current(known, c)) return L.send(res, 200, { status: 'done', result: known, cached: true });
   const running = await L.redis(['GET', 'sc:pend:' + domain]);
   if (running) return L.send(res, 202, { id: running, status: 'pending' });
 
@@ -109,6 +110,8 @@ async function poll(req, res) {
   }
   const out = { id: job.id, status: 'done', result: job.result };
   if (job.reason) out.reason = job.reason;
+  // The rejection detail is shown only to the holder of the test key.
+  if (job.detail && L.hasTestKey(req)) out.detail = job.detail;
   return L.send(res, 200, out);
 }
 
