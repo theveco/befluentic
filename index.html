@@ -1860,7 +1860,7 @@
         <span class="mono">No scan</span>
         <h2 id="oscFailT"></h2>
         <p class="osc-failp" id="oscFailP"></p>
-        <div class="osc-acts"><a class="osc-btn" href="https://calendly.com/befluentic-info/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call &rarr;</a><button class="osc-btn ghost" type="button" id="oscFailX">Try another domain</button></div>
+        <div class="osc-acts"><a class="osc-btn" href="https://calendly.com/befluentic-info/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call &rarr;</a><button class="osc-btn ghost" type="button" id="oscFailX">Close</button></div>
       </div>
     </div>
     <div class="results" id="oscRes" hidden>
@@ -1916,7 +1916,7 @@
     not_a_domain:'Enter a company domain, like yourcompany.com.',
     unsupported_domain:'We can\'t scan that domain. Try your company\'s own site.',
     unreachable_domain:'We couldn\'t find that domain. Check the spelling.',
-    rate_limited:'You\'ve used today\'s 3 new scans. Come back tomorrow, or talk to us now:',
+    rate_limited:'You\'ve used today\'s scan. Come back tomorrow, or talk to us now:',
     closed:'The scanner isn\'t open yet. Talk to us instead:',
     down:'Something went wrong on our side. Try again in a minute.'
   };
@@ -2001,7 +2001,7 @@
     function fail(reason){
       clear(); view('oscFail');
       $('oscFailT').textContent = reason==='timeout' ? 'That took too long.' : 'We couldn\'t read that site.';
-      $('oscFailP').textContent = reason==='timeout' ? 'The site was slow to answer. Try again in a minute, or book a call and we go through it together.' : 'Some sites block automated readers, and some show too little to work from. Try another domain, or book a call and we go through it together.';
+      $('oscFailP').textContent = reason==='timeout' ? 'The site was slow to answer. Book a call and we go through your business together.' : 'Some sites block automated readers, and some show too little to work from. Book a call and we go through your business together.';
     }
 
     /* ---- the result ---- */
