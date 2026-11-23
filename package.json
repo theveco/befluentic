@@ -1,0 +1,28 @@
+{
+  "name": "befluentic",
+  "version": "1.0.0",
+  "description": "Fluentic - We make your business AI-native",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theveco/befluentic.git"
+  },
+  "keywords": [
+    "AI",
+    "automation",
+    "business"
+  ],
+  "author": "Fluentic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theveco/befluentic/issues"
+  },
+  "homepage": "https://github.com/theveco/befluentic#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0"
+  }
+}
