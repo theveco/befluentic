@@ -942,6 +942,12 @@
     @media(max-width:560px){.osc .facts{grid-template-columns:1fr}}
     .osc .scanning{position:static;display:flex;min-height:min(30rem,70vh);z-index:auto;background:none;padding:3rem var(--px)}
     .osc .steps li.on{font-weight:500}
+    .osc .sl label{align-items:center}
+    .osc .num{width:6rem;text-align:right;font-family:var(--m);font-size:.9rem;font-weight:500;color:var(--bone);background:#fff;border:1px solid var(--b20);border-radius:6px;padding:.3rem .45rem}
+    .osc .num:focus{outline:none;border-color:var(--bone)}
+    .osc .scope.first{margin-top:.8rem;font-size:.92rem;color:var(--b85)}
+    .osc .panel q.bq{display:block;margin:1rem 0 .2rem;font-size:.92rem;line-height:1.55;color:var(--b85);padding-left:.9rem;border-left:2px solid var(--b20);quotes:'\201C' '\201D';white-space:pre-line;overflow-wrap:anywhere}
+    .osc .panel .big{overflow-wrap:anywhere}
     .osc .osc-wait{font-size:.88rem;color:var(--b70);margin-top:1rem}
     .osc .osc-failp{font-size:1.05rem;line-height:1.6;color:var(--b85);max-width:44ch}
     .osc .osc-acts{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.8rem}
@@ -1138,7 +1144,7 @@
         </form>
         <div class="osc-cap" id="oscCap" hidden>Today's scans are used up. Book a call and we go through your business together.<br><a href="https://calendly.com/befluentic-info/30min" class="btn btn-fill btn-lg" target="_blank" rel="noopener noreferrer">Book a free 30-minute call</a></div>
         <div class="osc-err" id="oscErr" role="alert"></div>
-        <p class="osc-note" id="oscNote">Type your company's website. In 30 seconds, AI reads it and shows where your team likely loses time, and what we could build to fix it.</p>
+        <p class="osc-note" id="oscNote">Type your company's website. In about a minute, AI reads it and shows where your team likely loses time, and what we could build to fix it.</p>
       </div>
     </div>
   </div>
@@ -1845,7 +1851,7 @@
         <h2 id="oscDomain"></h2>
         <ul class="steps" id="oscSteps"></ul>
         <div class="bar"><i id="oscFill"></i></div>
-        <p class="osc-wait">This takes about 30 seconds.</p>
+        <p class="osc-wait">This takes up to a minute.</p>
         <p class="osc-wait" id="oscSlow" hidden>Still working. Some sites take longer.</p>
       </div>
     </div>
@@ -1868,10 +1874,10 @@
         <section class="sec" id="oscBnSec">
           <div class="sec-h">
             <div><span class="mono">Possible bottlenecks</span><h2>Where the repeat work likely&nbsp;sits.</h2></div>
-            <p>Work the public pages suggest is still done by hand, each with a published benchmark for that kind of work.</p>
+            <p>Work the public pages suggest is still done by hand, each with a published industry figure. These are estimates, not findings about this business.</p>
           </div>
           <div class="bn2"><div class="rail" id="oscRail"></div><div class="panel" id="oscPanel"></div></div>
-          <div class="sum"><div><span class="mono">Your estimate</span><b id="oscSum">Drag a slider to see it</b></div><a href="https://calendly.com/befluentic-info/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call &rarr;</a></div>
+          <div class="sum"><div><span class="mono" id="oscSumL">Your estimate</span><b id="oscSum">Drag a slider to see it</b></div><a href="https://calendly.com/befluentic-info/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call &rarr;</a></div>
         </section>
         <section class="sec">
           <div class="sec-h">
@@ -1894,7 +1900,7 @@
         <section class="src">
           <span class="mono">Sources</span>
           <ol id="oscSources"></ol>
-          <p class="fine">Company facts are quoted from the company pages listed above. The bottlenecks are AI inferences from those pages, marked as likely, and are not verified findings. Benchmarks are published industry figures, not measurements of this company, and several come from vendors. Estimates use only the numbers you enter. A conversation is where all of it gets checked against how the business actually runs.</p>
+          <p class="fine">Company facts are quoted from the company pages listed above. The bottlenecks are AI inferences from those pages, marked as likely, and are not verified findings. The industry figures are published estimates found by AI, not measurements of this company, and some come from vendors. Estimates use only the numbers you enter. A conversation is where all of it gets checked against how the business actually runs.</p>
         </section>
       </div>
     </div>
@@ -1905,20 +1911,7 @@
 <script>
 /* Opportunity Scanner */
 (function(){
-  var BENCH = {
-    takeoff: { big:"About 70%", unit:"less time on a quantity takeoff with AI assistance, in a 2025 study", bars:[["By hand","2 h 35 min",100],["AI-assisted","37 min",24]], scope:"From one case in the study: two floor plans of a fire station. The second case saved 67%. Your takeoffs will differ.", calc:"takeoff",
-      src:[{t:"Simplar Foundation, Togal.AI vs On-Screen Takeoff (2025 study)", u:"https://simplarfoundation.org/wp-content/uploads/2025/12/Togal.AI-vs-On-Screen-Takeoff.pdf"}] },
-    order_entry: { big:"10 to 15 min", unit:"to key in one order by hand, against under 1 minute automated", bars:[["By hand","10 to 15 min",100],["Automated","under 1 min",7]], scope:"Published by an order-automation vendor, which attributes the figures to APQC order management benchmarks.", calc:"order",
-      src:[{t:"OrderSync, What Is Order Processing? (vendor article citing APQC)", u:"https://ordersync.io/blog/what-is-order-processing"}] },
-    invoice_ar: { big:"$15 to $16", unit:"to process one invoice by hand, against $3 to $5 automated", bars:[["By hand","$15 to $16",100],["Automated","$3 to $5",26]], scope:"Published by a B2B payments vendor, which attributes the figures to IOFM and Levvel Research. Separately, APQC reports the median company collects in about 38 days and top performers in 30 or less.", calc:"invoice",
-      src:[{t:"Resolve, 13 Invoice Processing Stats (vendor article citing IOFM and Levvel Research)", u:"https://resolvepay.com/blog/13-statistics-that-quantify-cost-per-invoice-in-manual-vs-automated-flows"},{t:"APQC, How Can You Improve the Collections Process? (2026)", u:"https://www.apqc.org/How-Can-You-Improve-the-Collections-Process"}] }
-  };
-  var CALC = {
-    order:   { inputs:[["orders","Orders keyed in a week",0,3000,10]], out:function(v){ return {lo:v.orders*9/60, hi:v.orders*14/60, unit:"hours a week", kind:"h"}; }, formula:"Orders × 9 to 14 minutes saved each." },
-    takeoff: { inputs:[["jobs","Takeoffs a week",0,200,1],["mins","Minutes each, by hand",0,240,5]], out:function(v){ var t=v.jobs*v.mins/60; return {lo:t*.67, hi:t*.76, unit:"hours a week", kind:"h"}; }, formula:"Takeoffs × minutes × 67% to 76% saved." },
-    invoice: { inputs:[["inv","Invoices a month",0,20000,50]], out:function(v){ return {lo:v.inv*10, hi:v.inv*13, unit:"a month", kind:"$"}; }, formula:"Invoices × $10 to $13 saved each." }
-  };
-  var STEPS = [[0,'Reading the home page'],[4,'Choosing the pages that show how work gets done'],[9,'Reading those pages'],[15,'Finding the repeat work'],[20,'Matching published benchmarks'],[25,'Writing the scan']];
+  var STEPS = [[0,'Reading the home page'],[6,'Reading the pages that show how work gets done'],[14,'Working out what kind of business this is'],[20,'Finding its three biggest repeat jobs'],[27,'Searching for published industry figures'],[38,'Writing the scan']];
   var MSG = {
     not_a_domain:'Enter a company domain, like yourcompany.com.',
     unsupported_domain:'We can\'t scan that domain. Try your company\'s own site.',
@@ -1943,8 +1936,13 @@
     function nums(a){ return (Array.isArray(a)?a:[a]).map(function(n){ return parseInt(n,10); }).filter(function(n){ return n>=1 && n<=srcAll.length; }); }
     function cite(a){ var n=nums(a); return n.length ? '<sup class="c">'+n.map(function(k){ return '<a href="#osc-src-'+k+'">'+k+'</a>'; }).join(' ')+'</sup>' : ''; }
     function okUrl(u){ return typeof u==='string' && /^https:\/\//i.test(u); }
-    function rangeText(o){ if(o.hi<=0) return null; var a=fmt(o.lo), b=fmt(o.hi); return o.kind==='$' ? ('$'+((a===b)?a:(a+' to $'+b))+' '+o.unit) : (((a===b)?a:(a+' to '+b))+' '+o.unit); }
-    function vals(c,i){ var o={}, s=state[i]||{}; c.inputs.forEach(function(p){ o[p[0]]=s[p[0]]||0; }); return o; }
+    function rangeText(o){ if(!o || o.hi<=0) return null; var a=fmt(o.lo), b=fmt(o.hi), c=o.cur||''; return o.kind==='$' ? (c+((a===b)?a:(a+' to '+c+b))+' '+o.unit) : (((a===b)?a:(a+' to '+b))+' '+o.unit); }
+    function okBench(be){ return be && typeof be==='object' && be.figure && be.label && be.source && okUrl(be.source.u); }
+    function okCalc(c){ return c && (c.kind==='minutes'||c.kind==='money') && (c.per==='week'||c.per==='month') && +c.low>0 && +c.high>=+c.low && c.unit; }
+    function est(c,n){ if(!n) return null; var lo=n*c.low, hi=n*c.high;
+      if(c.kind==='minutes'){ lo/=60; hi/=60; return {lo:lo,hi:hi,kind:'h',unit:'hours a '+c.per}; }
+      return {lo:lo,hi:hi,kind:'$',cur:c.currency||'',unit:'a '+c.per}; }
+    function per(c){ var f=function(v){ return (Math.round(v*100)/100).toLocaleString('en-US'); }, r=(+c.low===+c.high)?f(c.low):(f(c.low)+' to '+f(c.high)); return c.kind==='minutes' ? (r+' minutes saved each') : ((c.currency||'')+r+' saved each'); }
     function later(fn,ms){ var t=setTimeout(fn,ms); timers.push(t); return t; }
     function clear(){ timers.forEach(clearTimeout); timers=[]; }
     function view(name){ ['oscScan','oscFail','oscRes'].forEach(function(id){ $(id).hidden = (id!==name); }); $('oscBody').scrollTop=0; }
@@ -1975,7 +1973,7 @@
     function poll(id, my, t0){
       later(function(){
         if(my!==run) return;
-        if(Date.now()-t0 > 125000){ fail('timeout'); return; }
+        if(Date.now()-t0 > 190000){ fail('timeout'); return; }
         fetch('/api/scan?id='+encodeURIComponent(id), { headers:{'Accept':'application/json'} })
           .then(function(r){ return r.json(); })
           .then(function(j){
@@ -1996,9 +1994,9 @@
       STEPS.forEach(function(s){ var li=document.createElement('li'); li.textContent=s[1]; ul.appendChild(li); });
       var li=ul.children, fill=$('oscFill'); $('oscSlow').hidden=true;
       fill.style.transition='none'; fill.style.width='0'; void fill.offsetWidth;
-      fill.style.transition='width 30s cubic-bezier(.2,.6,.3,1)'; fill.style.width='92%';
+      fill.style.transition='width 50s cubic-bezier(.2,.6,.3,1)'; fill.style.width='92%';
       STEPS.forEach(function(s,i){ later(function(){ if(i>0){ li[i-1].classList.remove('on'); li[i-1].classList.add('done'); } li[i].classList.add('on'); }, s[0]*1000); });
-      later(function(){ $('oscSlow').hidden=false; }, 40000);
+      later(function(){ $('oscSlow').hidden=false; }, 65000);
     }
     function fail(reason){
       clear(); view('oscFail');
@@ -2012,10 +2010,9 @@
       if(!D || !D.name || !Array.isArray(D.sources)){ fail('invalid'); return; }
       data=D; state={}; sel=0;
       srcAll = D.sources.map(function(s){ return {t:s.t, u:s.u}; });
-      list = (D.bottlenecks||[]).filter(function(b){ return b && BENCH[b.bench]; }).slice(0,3).map(function(b){
-        var be=BENCH[b.bench], n=[];
-        be.src.forEach(function(s){ srcAll.push(s); n.push(srcAll.length); });
-        return {b:b, be:be, n:n};
+      list = (D.bottlenecks||[]).filter(function(b){ return b && okBench(b.bench); }).slice(0,3).map(function(b){
+        srcAll.push({t:b.bench.source.t, u:b.bench.source.u, host:b.bench.source.host});
+        return {b:b, be:b.bench, n:[srcAll.length]};
       });
       var top='<span>'+esc(D.domain)+'</span>'+(D.pages||[]).map(function(p){ return '<span>'+esc(p)+'</span>'; }).join('');
       var d=/^(\d{4})-(\d{2})-(\d{2})$/.exec(D.scannedAt||'');
@@ -2035,7 +2032,7 @@
         var li=document.createElement('li'); li.id='osc-src-'+(i+1);
         var b=document.createElement('b'); b.textContent=pad(i+1); li.appendChild(b);
         var sp=document.createElement('span'); sp.appendChild(document.createTextNode(s.t||''));
-        if(okUrl(s.u)){ sp.appendChild(document.createElement('br')); var a=document.createElement('a'); a.href=s.u; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent=s.u; sp.appendChild(a); }
+        if(okUrl(s.u)){ sp.appendChild(document.createElement('br')); var a=document.createElement('a'); a.href=s.u; a.target='_blank'; a.rel='noopener noreferrer nofollow'; a.textContent=s.host||s.u; sp.appendChild(a); }
         li.appendChild(sp); ol.appendChild(li);
       });
       if(list.length) draw();
@@ -2043,29 +2040,37 @@
       view('oscRes');
     }
     function draw(){
-      $('oscRail').innerHTML = list.map(function(x,i){ return '<button class="r'+(i===sel?' on':'')+'" type="button" data-i="'+i+'" aria-pressed="'+(i===sel)+'"><span class="mono">'+pad(i+1)+'</span><h3>'+esc(x.b.name)+'</h3><span class="n">'+esc(x.be.big)+'</span></button>'; }).join('');
-      var x=list[sel], b=x.b, be=x.be, c=CALC[be.calc], v=vals(c,sel), t=rangeText(c.out(v));
-      var bars='<div class="bars">'+be.bars.map(function(r,k){ var inside=r[2]>40; return '<div class="bar-r"><span>'+esc(r[0])+'</span><div class="bar-t'+(k?' b2':'')+'"><i data-w="'+r[2]+'"></i><em'+(inside?' class="in"':' style="left:calc('+r[2]+'% + .6rem)"')+'>'+esc(r[1])+'</em></div></div>'; }).join('')+'</div>';
-      var calc='<div><span class="mono">Your numbers</span><div class="sls">'
-        + c.inputs.map(function(p){ return '<div class="sl"><label>'+esc(p[1])+'<b data-v="'+p[0]+'">'+fmt(v[p[0]])+'</b></label><input type="range" data-k="'+p[0]+'" min="'+p[2]+'" max="'+p[3]+'" step="'+p[4]+'" value="'+v[p[0]]+'" aria-label="'+esc(p[1])+'"></div>'; }).join('')
-        + '</div><div class="res"><b>'+(t?('About '+t+' back'):'Drag to your own numbers')+'</b><span>'+esc(c.formula)+' An estimate, not a promise.</span></div></div>';
+      $('oscRail').innerHTML = list.map(function(x,i){ return '<button class="r'+(i===sel?' on':'')+'" type="button" data-i="'+i+'" aria-pressed="'+(i===sel)+'"><span class="mono">'+pad(i+1)+'</span><h3>'+esc(x.b.name)+'</h3><span class="n">'+esc(x.be.figure)+'</span></button>'; }).join('');
+      var x=list[sel], b=x.b, be=x.be, c=okCalc(be.calc)?be.calc:null, n=(state[sel]||{}).n||0;
+      var left='<div><span class="mono">Industry estimate</span><p class="scope first">'+esc(be.scope||'')+'</p>'
+        + (be.srcQuote?'<q class="bq">'+esc(be.srcQuote)+'</q>':'')
+        + '<a class="srcl bsrc" target="_blank" rel="noopener noreferrer nofollow"></a></div>';
+      var calc='';
+      if(c){ var t=rangeText(est(c,n));
+        calc='<div><span class="mono">Your numbers</span><div class="sls"><div class="sl"><label><span>'+esc(c.unit)+'</span><input type="number" class="num" data-n="n" min="0" step="1" inputmode="numeric" value="'+n+'" aria-label="'+esc(c.unit)+', type a number"></label><input type="range" data-k="n" min="0" max="'+(c.per==='month'?2000:500)+'" step="1" value="'+Math.min(n,c.per==='month'?2000:500)+'" aria-label="'+esc(c.unit)+'"></div></div>'
+          + '<div class="res"><b>'+(t?('About '+t+' back'):'Drag to your own numbers')+'</b><span>'+esc(c.unit)+' × '+esc(per(c))+'. An estimate, not a promise.</span></div></div>';
+      } else {
+        calc='<div><span class="mono">For your business</span><p class="scope first">This is an industry figure, not a measurement of your business. What it means for you depends on your own volumes, which we go through on the call.</p></div>';
+      }
       var si=parseInt(b.s,10), src=data.sources[si-1], sol=(data.solutions||[])[b.sol];
       var p=$('oscPanel');
-      p.innerHTML='<span class="mono">'+esc(b.name)+'</span><div class="big">'+esc(be.big)+'</div><p class="unit">'+esc(be.unit)+cite([x.n[0]])+'</p>'
-        + '<div class="two"><div><span class="mono">Industry benchmark</span>'+bars+'<p class="scope">'+esc(be.scope)+cite(x.n)+'</p></div>'+calc+'</div>'
+      p.innerHTML='<span class="mono">'+esc(b.name)+'</span><div class="big">'+esc(be.figure)+'</div><p class="unit">'+esc(be.label)+cite(x.n)+'</p>'
+        + '<div class="two">'+left+calc+'</div>'
         + '<details><summary>Why we think so</summary><p>'+esc(b.text)+'</p><q>'+esc(b.quote)+'</q>'+(b.note?'<p>'+esc(b.note)+(b.also?cite([b.also]):'')+'</p>':'')+(src&&okUrl(src.u)?'<a class="srcl" target="_blank" rel="noopener noreferrer"></a>':'')+'</details>'
         + (sol?'<button class="bn-go" type="button" data-go="'+parseInt(b.sol,10)+'"><div><span>What we could build</span>'+esc(sol.name)+'</div><b aria-hidden="true">&rarr;</b></button>':'');
-      var a=p.querySelector('a.srcl'); if(a){ a.href=src.u; a.textContent='Source '+si+': '+(src.t||''); }
+      var a=p.querySelector('details a.srcl'); if(a){ a.href=src.u; a.textContent='Source '+si+': '+(src.t||''); }
+      var bs=p.querySelector('a.bsrc'); bs.href=be.source.u; bs.textContent=(be.source.t||'Source')+(be.source.host?' ('+be.source.host+')':'');
       p.classList.remove('swap'); void p.offsetWidth; p.classList.add('swap');
-      later(function(){ Array.prototype.forEach.call(p.querySelectorAll('.bar-t i'),function(el){ el.style.width=el.getAttribute('data-w')+'%'; }); }, 80);
     }
     function total(){
       var h={lo:0,hi:0}, m={lo:0,hi:0};
-      list.forEach(function(x,i){ if(!state[i]) return; var c=CALC[x.be.calc], o=c.out(vals(c,i)); if(o.kind==='h'){ h.lo+=o.lo; h.hi+=o.hi; } else { m.lo+=o.lo; m.hi+=o.hi; } });
+      var cur='', hp='week', mp='month', any=false;
+      list.forEach(function(x,i){ if(okCalc(x.be.calc)) any=true; var o=okCalc(x.be.calc)?est(x.be.calc,(state[i]||{}).n||0):null; if(!o) return; if(o.kind==='h'){ h.lo+=o.lo; h.hi+=o.hi; hp=x.be.calc.per; } else { m.lo+=o.lo; m.hi+=o.hi; cur=o.cur; mp=x.be.calc.per; } });
       var parts=[];
-      if(h.hi>0) parts.push(rangeText({lo:h.lo,hi:h.hi,unit:'hours a week',kind:'h'}));
-      if(m.hi>0) parts.push(rangeText({lo:m.lo,hi:m.hi,unit:'a month',kind:'$'}));
-      $('oscSum').textContent = parts.length ? parts.join(', and ') : 'Drag a slider to see it';
+      if(h.hi>0) parts.push(rangeText({lo:h.lo,hi:h.hi,unit:'hours a '+hp,kind:'h'}));
+      if(m.hi>0) parts.push(rangeText({lo:m.lo,hi:m.hi,unit:'a '+mp,kind:'$',cur:cur}));
+      $('oscSumL').textContent = (parts.length||any) ? 'Your estimate' : 'Next step';
+      $('oscSum').textContent = parts.length ? parts.join(', and ') : (any ? 'Drag a slider to see it' : 'Check these figures against your own numbers');
       $('oscCtaP').textContent = parts.length
         ? 'Your estimate: '+parts.join(', and ')+'. Book a free 30-minute call and we check it against your real numbers.'
         : 'Book a free 30-minute call. We go through this with you and tell you straight what we would do first.';
@@ -2085,11 +2090,12 @@
       el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
     });
     $('oscPanel').addEventListener('input', function(e){
-      var r=e.target; if(r.type!=='range') return;
-      var c=CALC[list[sel].be.calc], k=r.getAttribute('data-k');
-      state[sel]=state[sel]||{}; state[sel][k]=+r.value;
-      $('oscPanel').querySelector('[data-v="'+k+'"]').textContent=fmt(+r.value);
-      var t=rangeText(c.out(vals(c,sel)));
+      var r=e.target, isR=(r.type==='range'), k=r.getAttribute(isR?'data-k':'data-n'); if(!k) return;
+      var c=list[sel].be.calc, val=Math.max(0, Math.round(+r.value||0));
+      state[sel]={n:val};
+      var other=$('oscPanel').querySelector(isR?'[data-n="n"]':'[data-k="n"]');
+      if(other) other.value = isR ? val : Math.min(val, +other.max);
+      var t=rangeText(est(c,val));
       $('oscPanel').querySelector('.res b').textContent = t ? ('About '+t+' back') : 'Drag to your own numbers';
       total();
     });
