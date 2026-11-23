@@ -1550,7 +1550,7 @@
   var wrap=el.parentNode;
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce) return;
-  var words=['order desk','front desk','warehouse','back office','service counter','business'];
+  var words=['practice','clinic','shop','warehouse','back office','front desk','order desk','firm','agency','office','studio','store','depot','business'];
   var i=words.length-1;
   function width(txt){var m=el.cloneNode(true);m.textContent=txt;m.style.position='absolute';m.style.visibility='hidden';m.style.left='-9999px';m.className='hero-rot-word';wrap.appendChild(m);var w=m.getBoundingClientRect().width;wrap.removeChild(m);return w;}
   function setW(){wrap.style.width=width(el.textContent)+'px';}
