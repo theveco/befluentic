@@ -1959,7 +1959,7 @@
     function view(name){ ['oscScan','oscFail','oscRes'].forEach(function(id){ $(id).hidden = (id!==name); }); $('oscBody').scrollTop=0; }
     function open(){ osc.classList.add('open'); osc.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; $('oscX').focus(); }
     function close(){ run++; clear(); osc.classList.remove('open'); osc.setAttribute('aria-hidden','true'); document.body.style.overflow='';
-      if(KEEP && (last || pending)){ lock(last ? last.domain : pending); $('oscOpen').focus(); }
+      if(last || (KEEP && pending)){ lock(last ? last.domain : pending); $('oscOpen').focus(); }
       else input.focus(); }
     function reopen(){ if(last){ open(); view('oscRes'); } else if(pending){ start(pending); } }
     function busy(on){ go.disabled=on; $('oscOpen').disabled=on; go.firstChild.nodeValue = on ? 'Checking ' : 'Scan '; }
@@ -2117,7 +2117,7 @@
       $('oscPanel').querySelector('.res b').textContent = t ? ('About '+t+' back') : 'Drag to your own numbers';
       total();
     });
-    Array.prototype.forEach.call(document.querySelectorAll('a[href="#grader"]'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); window.scrollTo({top:0,behavior:reduce?'auto':'smooth'}); setTimeout(function(){ if(KEEP && (last || pending)) reopen(); else input.focus(); }, reduce?0:450); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('a[href="#grader"]'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); window.scrollTo({top:0,behavior:reduce?'auto':'smooth'}); setTimeout(function(){ if(last || (KEEP && pending)) reopen(); else input.focus(); }, reduce?0:450); }); });
   });
 })();
 </script>
